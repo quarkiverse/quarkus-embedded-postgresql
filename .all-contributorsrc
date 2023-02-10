@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "fjtirado",
+      "name": "Francisco Javier Tirado Sarti",
+      "avatar_url": "https://avatars.githubusercontent.com/u/65240126?v=4",
+      "profile": "https://github.com/fjtirado",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "quarkus-embedded-postgresql",
+  "projectOwner": "quarkiverse"
+}
