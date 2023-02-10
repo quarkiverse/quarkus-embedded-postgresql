@@ -18,8 +18,9 @@
 			<artifactId>quarkus-arc-deployment</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.kie.kogito</groupId>
+			<groupId>io.quarkiverse.embedded.postgresql</groupId>
 			<artifactId>quarkus-embedded-postgresql</artifactId>
+			 <version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -53,7 +54,7 @@
 						<path>
 							<groupId>io.quarkus</groupId>
 							<artifactId>quarkus-extension-processor</artifactId>
-							<version>${version.io.quarkus}</version>
+							<version>${quarkus.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

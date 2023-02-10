@@ -16,6 +16,8 @@
 
 package org.kie.kogito.persistence.inmemory.postgresql.test;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
@@ -32,8 +34,6 @@ import io.quarkus.test.QuarkusUnitTest;
 import io.smallrye.mutiny.Multi;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Tuple;
-
-import static java.util.stream.Collectors.toList;
 
 public class InmemoryPostgreSQLTest {
 

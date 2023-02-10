@@ -16,6 +16,8 @@
 
 package org.kie.kogito.persistence.inmemory.postgresql.deployment;
 
+import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
+
 import java.io.IOException;
 
 import org.kie.kogito.persistence.inmemory.postgresql.runtime.InmemoryPostgreSQLRecorder;
@@ -28,8 +30,6 @@ import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationSourceValueBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.runtime.RuntimeValue;
-
-import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
 class InmemoryPostgreSQLProcessor {
 
