@@ -54,7 +54,9 @@ public class InmemoryPostgreSQLResource {
     @Path("{id}")
     public Uni<Response> getSingle(Long id) {
         return InmemoryPostgreSQL.findById(client, id)
-                .onItem().transform(inmemoryPostgreSQL -> inmemoryPostgreSQL != null ? Response.ok(inmemoryPostgreSQL) : Response.status(Status.NOT_FOUND))
+                .onItem()
+                .transform(inmemoryPostgreSQL -> inmemoryPostgreSQL != null ? Response.ok(inmemoryPostgreSQL)
+                        : Response.status(Status.NOT_FOUND))
                 .onItem().transform(ResponseBuilder::build);
     }
 

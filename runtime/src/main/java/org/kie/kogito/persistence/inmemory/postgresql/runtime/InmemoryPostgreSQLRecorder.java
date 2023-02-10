@@ -16,6 +16,8 @@
 
 package org.kie.kogito.persistence.inmemory.postgresql.runtime;
 
+import static org.kie.kogito.persistence.inmemory.postgresql.runtime.InmemoryPostgreSQLConfigSourceProvider.*;
+
 import java.io.IOException;
 
 import org.eclipse.microprofile.config.spi.ConfigSourceProvider;
@@ -24,8 +26,6 @@ import org.jboss.logging.Logger;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-
-import static org.kie.kogito.persistence.inmemory.postgresql.runtime.InmemoryPostgreSQLConfigSourceProvider.*;
 
 @Recorder
 public class InmemoryPostgreSQLRecorder {
