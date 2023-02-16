@@ -1,5 +1,5 @@
-name: In-memory PostgreSQL
-description: In-memory PostgreSQL with Zonky Embedded Postgres
+name: Embedded PostgreSQL
+description: PostgreSQL with Zonky Embedded Postgres
 metadata:
 #  keywords:
 #    - inmemory-postgresql
