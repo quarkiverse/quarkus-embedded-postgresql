@@ -1,26 +1,17 @@
-/*
- * Copyright 2021 Red Hat, Inc. and/or its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package io.quarkiverse.embedded.postgresql.deployment;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
 import java.io.IOException;
 
+import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConnectionConfigurer;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLRecorder;
+import io.quarkus.agroal.spi.JdbcDriverBuildItem;
+import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
+import io.quarkus.arc.processor.BuiltinScope;
+import io.quarkus.datasource.common.runtime.DatabaseKind;
+import io.quarkus.deployment.Capabilities;
+import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
@@ -28,11 +19,12 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationSourceValueBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.runtime.RuntimeValue;
 
 class EmbeddedPostgreSQLProcessor {
 
-    private static final String FEATURE = "inmemory-postgres";
+    private static final String FEATURE = "embedded-postgres";
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -41,11 +33,28 @@ class EmbeddedPostgreSQLProcessor {
 
     @BuildStep
     @Record(RUNTIME_INIT)
-    ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder,
+    ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder, ShutdownContextBuildItem shutdown,
             BuildProducer<RunTimeConfigurationSourceValueBuildItem> configSourceValueBuildItem) throws IOException {
-        RuntimeValue<Integer> port = recorder.startPostgres();
+        RuntimeValue<Integer> port = recorder.startPostgres(shutdown);
         configSourceValueBuildItem.produce(new RunTimeConfigurationSourceValueBuildItem(recorder.configSources(port)));
         return new ServiceStartBuildItem(FEATURE);
+    }
+
+    @BuildStep
+    void configureAgroalConnection(BuildProducer<AdditionalBeanBuildItem> additionalBeans, Capabilities capabilities) {
+        if (capabilities.isPresent(Capability.AGROAL)) {
+            additionalBeans
+                    .produce(new AdditionalBeanBuildItem.Builder().addBeanClass(EmbeddedPostgreSQLConnectionConfigurer.class)
+                            .setDefaultScope(BuiltinScope.APPLICATION.getName())
+                            .setUnremovable()
+                            .build());
+        }
+    }
+
+    @BuildStep
+    void registerDriver(BuildProducer<JdbcDriverBuildItem> jdbcDriver) {
+        jdbcDriver.produce(new JdbcDriverBuildItem(DatabaseKind.POSTGRESQL, "org.postgresql.Driver",
+                "org.postgresql.xa.PGXADataSource"));
     }
 
     @BuildStep
