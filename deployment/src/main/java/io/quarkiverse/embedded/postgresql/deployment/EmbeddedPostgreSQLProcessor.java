@@ -12,6 +12,7 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationSourceValueBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.runtime.RuntimeValue;
 
 class EmbeddedPostgreSQLProcessor {
@@ -25,9 +26,9 @@ class EmbeddedPostgreSQLProcessor {
 
     @BuildStep
     @Record(RUNTIME_INIT)
-    ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder,
+    ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder, ShutdownContextBuildItem shutdown,
             BuildProducer<RunTimeConfigurationSourceValueBuildItem> configSourceValueBuildItem) throws IOException {
-        RuntimeValue<Integer> port = recorder.startPostgres();
+        RuntimeValue<Integer> port = recorder.startPostgres(shutdown);
         configSourceValueBuildItem.produce(new RunTimeConfigurationSourceValueBuildItem(recorder.configSources(port)));
         return new ServiceStartBuildItem(FEATURE);
     }
