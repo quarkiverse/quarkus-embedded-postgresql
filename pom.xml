@@ -26,9 +26,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>2.16.2.Final</quarkus.version>
-    <version.org.assertj>3.23.1</version.org.assertj>
-    <version.org.mockito>5.1.1</version.org.mockito>
-    <version.com.fasterxml.jackson>2.14.1</version.com.fasterxml.jackson>
     <version.io.zonky.test>2.0.2</version.io.zonky.test>
   </properties>
   <dependencyManagement>
@@ -45,23 +42,6 @@
         <artifactId>embedded-postgres</artifactId>
         <version>${version.io.zonky.test}</version>
        </dependency>
-      <dependency>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-core</artifactId>
-        <version>${version.org.assertj}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>${version.org.mockito}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>${version.com.fasterxml.jackson}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>
