@@ -28,7 +28,7 @@
     <quarkus.version>2.16.2.Final</quarkus.version>
     <version.org.assertj>3.23.1</version.org.assertj>
     <version.org.mockito>5.1.1</version.org.mockito>
-    <version.com.fasterxml.jackson>2.14.1</version.com.fasterxml.jackson>
+    <version.com.fasterxml.jackson>2.14.2</version.com.fasterxml.jackson>
     <version.io.zonky.test>2.0.2</version.io.zonky.test>
   </properties>
   <dependencyManagement>
