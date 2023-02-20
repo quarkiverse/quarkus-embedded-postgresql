@@ -1,3 +1,22 @@
+# Quarkus - Embedded postgresql
+
+An alternative to quarkus-jdbc-postgres that rather than instantiating a pgsql server, uses zonky embedded library, reducing memory footprint. 
+It is mainly oriented for single pod k8s deployments or integration testing. 
+
+##Usage
+
+Include this dependency in your pom 
+
+```
+   <dependency>
+     <groupId>io.quarkiverse.embedded.postgresql</groupId>
+     <artifactId>quarkus-embedded-postgresql</artifactId>
+   </dependency>
+```
+
+You can now inject in your code a DataSource object (if you are JDBC friend) or a PgPool reference (if you prefer reactive) without adding any further property.
+
+You can optionally persist information into file system by setting the desired path as value of property `quarkus.embedded.postgresql.data.dir`
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
