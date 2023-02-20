@@ -1,7 +1,6 @@
 package io.quarkiverse.embedded.postgresql;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
@@ -28,13 +27,10 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
 
     @Override
     public Iterable<ConfigSource> getConfigSources(ClassLoader forClassLoader) {
-        Map<String, String> properties = new HashMap<>();
-
-        properties.put(QUARKUS_DATASOURCE_REACTIVE_URL, String.format(DEFAULT_REACTIVE_URL, port));
-        properties.put(QUARKUS_DATASOURCE_JDBC_URL, String.format(DEFAULT_JDBC_URL, port));
-        properties.put(QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME);
-        properties.put(QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD);
-
-        return Collections.singleton(new EmbeddedPostgreSQLConfigSource(properties));
+        return Collections.singleton(new EmbeddedPostgreSQLConfigSource(
+                Map.of(QUARKUS_DATASOURCE_REACTIVE_URL, String.format(DEFAULT_REACTIVE_URL, port),
+                        QUARKUS_DATASOURCE_JDBC_URL, String.format(DEFAULT_JDBC_URL, port),
+                        QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME,
+                        QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD)));
     }
 }
