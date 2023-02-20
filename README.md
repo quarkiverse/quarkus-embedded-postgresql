@@ -3,7 +3,7 @@
 An alternative to quarkus-jdbc-postgres that rather than instantiating a pgsql server, uses zonky embedded library, reducing memory footprint. 
 It is mainly oriented for single pod k8s deployments or integration testing. 
 
-##Usage
+## Usage
 
 Include this dependency in your pom 
 
