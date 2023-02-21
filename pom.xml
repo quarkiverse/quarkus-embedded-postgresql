@@ -26,7 +26,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>2.16.2.Final</quarkus.version>
-    <version.io.zonky.test>2.0.2</version.io.zonky.test>
+    <version.io.zonky.test>2.0.3</version.io.zonky.test>
   </properties>
   <dependencyManagement>
     <dependencies>
