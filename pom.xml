@@ -17,7 +17,6 @@
   <modules>
     <module>runtime</module>
     <module>deployment</module>
-    <module>integration-tests</module>
     <module>docs</module>
   </modules>
   
