@@ -13,12 +13,10 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
 
     static final String QUARKUS_DATASOURCE_REACTIVE_URL = "quarkus.datasource.reactive.url";
     static final String QUARKUS_DATASOURCE_JDBC_URL = "quarkus.datasource.jdbc.url";
-
     static final String QUARKUS_NAMED_DATASOURCE_REACTIVE_URL = "quarkus.datasource.\"%s\".reactive.url";
     static final String QUARKUS_NAMED_DATASOURCE_JDBC_URL = "quarkus.datasource.\"%s\".jdbc.url";
     static final String QUARKUS_DATASOURCE_USERNAME = "quarkus.datasource.username";
     static final String QUARKUS_DATASOURCE_PASSWORD = "quarkus.datasource.password";
-
     static final String QUARKUS_NAMED_DATASOURCE_USERNAME = "quarkus.datasource.\"%s\".username";
     static final String QUARKUS_NAMED_DATASOURCE_PASSWORD = "quarkus.datasource.\"%s\".password";
     static final String DEFAULT_DATABASE = "postgres";
@@ -35,29 +33,29 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
 
     @Override
     public Iterable<ConfigSource> getConfigSources(ClassLoader forClassLoader) {
-        Map<String, String> configs = Map.of(QUARKUS_DATASOURCE_REACTIVE_URL,
-                String.format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), DEFAULT_DATABASE),
+        Map<String, String> defaultConfigs = Map.of(
+                QUARKUS_DATASOURCE_REACTIVE_URL, String.format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), DEFAULT_DATABASE),
                 QUARKUS_DATASOURCE_JDBC_URL, String.format(DEFAULT_JDBC_URL, startupInfo.getPort(), DEFAULT_DATABASE),
                 QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME,
                 QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD);
 
-        Map<String, String> namedDataSourcesUrls = startupInfo.getDatabases().stream()
+        Map<String, String> namedDataSourcesConfigs = startupInfo.getDatabases().entrySet().stream()
                 .flatMap(db -> Stream.of(Map.entry(
-                        String.format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, db),
-                        String.format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), db)),
+                        String.format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, db.getKey()),
+                        String.format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), db.getValue())),
                         Map.entry(
-                                String.format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, db),
-                                String.format(DEFAULT_JDBC_URL, startupInfo.getPort(), db)),
+                                String.format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, db.getKey()),
+                                String.format(DEFAULT_JDBC_URL, startupInfo.getPort(), db.getValue())),
                         Map.entry(
-                                String.format(QUARKUS_NAMED_DATASOURCE_USERNAME, db),
+                                String.format(QUARKUS_NAMED_DATASOURCE_USERNAME, db.getKey()),
                                 DEFAULT_USERNAME),
                         Map.entry(
-                                String.format(QUARKUS_NAMED_DATASOURCE_PASSWORD, db),
+                                String.format(QUARKUS_NAMED_DATASOURCE_PASSWORD, db.getKey()),
                                 DEFAULT_PASSWORD)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        Map<String, String> allConfigs = new HashMap<>(configs);
-        allConfigs.putAll(namedDataSourcesUrls);
+        Map<String, String> allConfigs = new HashMap<>(defaultConfigs);
+        allConfigs.putAll(namedDataSourcesConfigs);
         return Collections.singleton(new EmbeddedPostgreSQLConfigSource(allConfigs));
     }
 }

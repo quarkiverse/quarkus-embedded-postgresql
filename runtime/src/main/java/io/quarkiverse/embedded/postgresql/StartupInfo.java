@@ -1,12 +1,12 @@
 package io.quarkiverse.embedded.postgresql;
 
-import java.util.Set;
+import java.util.Map;
 
 public class StartupInfo {
     int port;
-    Set<String> databases;
+    Map<String, String> databases;
 
-    public StartupInfo(int port, Set<String> databases) {
+    public StartupInfo(int port, Map<String, String> databases) {
         this.port = port;
         this.databases = databases;
     }
@@ -15,7 +15,7 @@ public class StartupInfo {
         return port;
     }
 
-    public Set<String> getDatabases() {
+    public Map<String, String> getDatabases() {
         return databases;
     }
 }

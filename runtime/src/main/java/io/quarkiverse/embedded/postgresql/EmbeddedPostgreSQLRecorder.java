@@ -9,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -38,8 +37,9 @@ public class EmbeddedPostgreSQLRecorder {
             builder.setDataDirectory(path);
             builder.setCleanDataDirectory(false);
         });
+
         EmbeddedPostgres pg = builder.start();
-        Set<String> databases = createDatabases(pg, dataSourcesBuildTimeConfig);
+        Map<String, String> databases = createDatabases(pg, dataSourcesBuildTimeConfig, DEFAULT_USERNAME);
         logger.infov(
                 "Embedded Postgres started at port \"{0,number,#}\" with database \"{1}\", user \"{2}\" and password \"{3}\"",
                 pg.getPort(), DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
@@ -53,21 +53,24 @@ public class EmbeddedPostgreSQLRecorder {
         return new RuntimeValue<>(new StartupInfo(pg.getPort(), databases));
     }
 
-    private Set<String> createDatabases(EmbeddedPostgres pg, DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig) {
+    private Map<String, String> createDatabases(EmbeddedPostgres pg, DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
+            String userName) {
         pg.getDatabase(DEFAULT_USERNAME, DEFAULT_DATABASE);
         return dataSourcesBuildTimeConfig.namedDataSources.entrySet().stream()
                 .filter(ds -> Objects.equals(ds.getValue().dbKind.get(), "postgresql"))
                 .map(Map.Entry::getKey)
-                .peek(db -> createDatabase(pg.getPostgresDatabase(), db, DEFAULT_USERNAME))
-                .collect(Collectors.toSet());
+                .map(db -> Map.entry(db, createDatabase(pg.getPostgresDatabase(), db, userName)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private void createDatabase(final DataSource dataSource, final String dbName, final String userName) {
+    private String createDatabase(final DataSource dataSource, final String dbName, final String userName) {
         Objects.requireNonNull(dbName);
         Objects.requireNonNull(userName);
-        String createDbStatement = String.format("CREATE DATABASE %s OWNER %s", dbName, userName);
+        String sanitizedDbName = dbName.replace("-", "_");
+        String createDbStatement = String.format("CREATE DATABASE %s OWNER %s", sanitizedDbName, userName);
         try (PreparedStatement stmt = dataSource.getConnection().prepareStatement(createDbStatement)) {
-            stmt.execute();
+            stmt.executeUpdate();
+            return sanitizedDbName;
         } catch (SQLException e) {
             throw new RuntimeException("Error creating DB " + dbName, e);
         }
