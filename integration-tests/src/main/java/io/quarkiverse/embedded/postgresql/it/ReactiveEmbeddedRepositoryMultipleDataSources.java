@@ -10,7 +10,7 @@ import io.vertx.mutiny.pgclient.PgPool;
 @IfBuildProfile("multiple-datasources")
 public class ReactiveEmbeddedRepositoryMultipleDataSources extends ReactiveEmbeddedRepository {
 
-    public ReactiveEmbeddedRepositoryMultipleDataSources(@ReactiveDataSource("database2") PgPool client) {
+    public ReactiveEmbeddedRepositoryMultipleDataSources(@ReactiveDataSource("database-2") PgPool client) {
         super(client);
     }
 }

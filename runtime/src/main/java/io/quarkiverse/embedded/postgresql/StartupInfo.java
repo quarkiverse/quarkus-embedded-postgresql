@@ -1,14 +1,19 @@
 package io.quarkiverse.embedded.postgresql;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class StartupInfo {
-    int port;
-    Map<String, String> databases;
+    private final int port;
+    private final Map<String, String> databases;
 
     public StartupInfo(int port, Map<String, String> databases) {
         this.port = port;
-        this.databases = databases;
+        if (databases == null) {
+            this.databases = Collections.emptyMap();
+        } else {
+            this.databases = Collections.unmodifiableMap(databases);
+        }
     }
 
     public int getPort() {

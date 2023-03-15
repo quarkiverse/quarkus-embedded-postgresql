@@ -59,14 +59,14 @@ public class EmbeddedPostgreSQLRecorder {
         return dataSourcesBuildTimeConfig.namedDataSources.entrySet().stream()
                 .filter(ds -> Objects.equals(ds.getValue().dbKind.get(), "postgresql"))
                 .map(Map.Entry::getKey)
-                .map(db -> Map.entry(db, createDatabase(pg.getPostgresDatabase(), db, userName)))
+                .map(ds -> Map.entry(ds, createDatabase(pg.getPostgresDatabase(), ds, userName)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private String createDatabase(final DataSource dataSource, final String dbName, final String userName) {
         Objects.requireNonNull(dbName);
         Objects.requireNonNull(userName);
-        String sanitizedDbName = dbName.replace("-", "_");
+        String sanitizedDbName = PostgreSQLSyntaxUtils.sanitizeDbName(dbName);
         String createDbStatement = String.format("CREATE DATABASE %s OWNER %s", sanitizedDbName, userName);
         try (PreparedStatement stmt = dataSource.getConnection().prepareStatement(createDbStatement)) {
             stmt.executeUpdate();

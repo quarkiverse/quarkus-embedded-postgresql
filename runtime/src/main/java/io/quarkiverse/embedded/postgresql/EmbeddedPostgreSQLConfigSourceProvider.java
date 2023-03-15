@@ -24,7 +24,6 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
     static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s";
     static final String DEFAULT_USERNAME = "postgres";
     static final String DEFAULT_PASSWORD = "postgres";
-
     private StartupInfo startupInfo;
 
     public EmbeddedPostgreSQLConfigSourceProvider(StartupInfo startupInfo) {
