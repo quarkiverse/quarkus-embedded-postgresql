@@ -6,10 +6,12 @@ import java.io.IOException;
 
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConnectionConfigurer;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLRecorder;
+import io.quarkiverse.embedded.postgresql.StartupInfo;
 import io.quarkus.agroal.spi.JdbcDriverBuildItem;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.processor.BuiltinScope;
 import io.quarkus.datasource.common.runtime.DatabaseKind;
+import io.quarkus.datasource.runtime.DataSourcesBuildTimeConfig;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.annotations.BuildProducer;
@@ -34,9 +36,10 @@ class EmbeddedPostgreSQLProcessor {
     @BuildStep
     @Record(RUNTIME_INIT)
     ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder, ShutdownContextBuildItem shutdown,
-            BuildProducer<RunTimeConfigurationSourceValueBuildItem> configSourceValueBuildItem) throws IOException {
-        RuntimeValue<Integer> port = recorder.startPostgres(shutdown);
-        configSourceValueBuildItem.produce(new RunTimeConfigurationSourceValueBuildItem(recorder.configSources(port)));
+            BuildProducer<RunTimeConfigurationSourceValueBuildItem> configSourceValueBuildItem,
+            DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig) throws IOException {
+        RuntimeValue<StartupInfo> info = recorder.startPostgres(shutdown, dataSourcesBuildTimeConfig);
+        configSourceValueBuildItem.produce(new RunTimeConfigurationSourceValueBuildItem(recorder.configSources(info)));
         return new ServiceStartBuildItem(FEATURE);
     }
 
