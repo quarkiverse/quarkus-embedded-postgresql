@@ -1,10 +1,10 @@
 package io.quarkiverse.embedded.postgresql;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
 import org.eclipse.microprofile.config.spi.ConfigSourceProvider;
@@ -33,19 +33,21 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
     @Override
     public Iterable<ConfigSource> getConfigSources(ClassLoader forClassLoader) {
         Map<String, String> allConfigs = new HashMap<>();
-         
-         startupInfo.getDatabases().entrySet().forEach (db -> {
-             allConfigs.put(String.format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, db.getKey()), String.format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), db.getValue()));
-             allConfigs.put(String.format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, db.getKey()),   String.format(DEFAULT_JDBC_URL, startupInfo.getPort(), db.getValue()));
-             allConfigs.put(String.format(QUARKUS_NAMED_DATASOURCE_USERNAME, db.getKey()),  DEFAULT_USERNAME);
-             allConfigs.put(String.format(QUARKUS_NAMED_DATASOURCE_PASSWORD, db.getKey()),  DEFAULT_PASSWORD);
-          });
-         
-         allConfigs.put(QUARKUS_DATASOURCE_REACTIVE_URL, String.format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), DEFAULT_DATABASE));
-         allConfigs.put(QUARKUS_DATASOURCE_JDBC_URL, String.format(DEFAULT_JDBC_URL, startupInfo.getPort(), DEFAULT_DATABASE));
-         allConfigs.put(QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME);
-         allConfigs.put(QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD));
-         
+
+        startupInfo.getDatabases().entrySet().forEach(db -> {
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, db.getKey()),
+                    format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), db.getValue()));
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, db.getKey()),
+                    format(DEFAULT_JDBC_URL, startupInfo.getPort(), db.getValue()));
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_USERNAME, db.getKey()), DEFAULT_USERNAME);
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_PASSWORD, db.getKey()), DEFAULT_PASSWORD);
+        });
+
+        allConfigs.put(QUARKUS_DATASOURCE_REACTIVE_URL, format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), DEFAULT_DATABASE));
+        allConfigs.put(QUARKUS_DATASOURCE_JDBC_URL, format(DEFAULT_JDBC_URL, startupInfo.getPort(), DEFAULT_DATABASE));
+        allConfigs.put(QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME);
+        allConfigs.put(QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD);
+
         return Collections.singleton(new EmbeddedPostgreSQLConfigSource(allConfigs));
     }
 }

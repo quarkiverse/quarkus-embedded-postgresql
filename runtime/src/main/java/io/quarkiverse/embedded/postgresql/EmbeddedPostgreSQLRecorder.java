@@ -5,6 +5,7 @@ import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigSourceP
 import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigSourceProvider.DEFAULT_USERNAME;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
@@ -39,7 +40,6 @@ public class EmbeddedPostgreSQLRecorder {
         });
 
         EmbeddedPostgres pg = builder.start();
-        Map<String, String> databases = createDatabases(pg, dataSourcesBuildTimeConfig, DEFAULT_USERNAME);
         logger.infov(
                 "Embedded Postgres started at port \"{0,number,#}\" with database \"{1}\", user \"{2}\" and password \"{3}\"",
                 pg.getPort(), DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
@@ -50,7 +50,8 @@ public class EmbeddedPostgreSQLRecorder {
                 logger.warn("Error shutting down embedded postgres", e);
             }
         });
-        return new RuntimeValue<>(new StartupInfo(pg.getPort(), databases));
+        return new RuntimeValue<>(
+                new StartupInfo(pg.getPort(), createDatabases(pg, dataSourcesBuildTimeConfig, DEFAULT_USERNAME)));
     }
 
     private Map<String, String> createDatabases(EmbeddedPostgres pg, DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
@@ -68,11 +69,12 @@ public class EmbeddedPostgreSQLRecorder {
         Objects.requireNonNull(userName);
         String sanitizedDbName = PostgreSQLSyntaxUtils.sanitizeDbName(dbName);
         String createDbStatement = String.format("CREATE DATABASE %s OWNER %s", sanitizedDbName, userName);
-        try (PreparedStatement stmt = dataSource.getConnection().prepareStatement(createDbStatement)) {
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement stmt = connection.prepareStatement(createDbStatement)) {
             stmt.executeUpdate();
             return sanitizedDbName;
         } catch (SQLException e) {
-            throw new RuntimeException("Error creating DB " + dbName, e);
+            throw new IllegalStateException("Error creating DB " + dbName, e);
         }
     }
 

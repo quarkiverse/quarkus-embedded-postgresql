@@ -7,13 +7,9 @@ public class StartupInfo {
     private final int port;
     private final Map<String, String> databases;
 
-    public StartupInfo(int port, Map<String, String> databases) {
+    protected StartupInfo(int port, Map<String, String> databases) {
         this.port = port;
-        if (databases == null) {
-            this.databases = Collections.emptyMap();
-        } else {
-            this.databases = Collections.unmodifiableMap(databases);
-        }
+        this.databases = Collections.unmodifiableMap(databases);
     }
 
     public int getPort() {
