@@ -18,6 +18,14 @@ You can now inject in your code a DataSource object (if you are JDBC friend) or 
 
 You can optionally persist information into file system by setting the desired path as value of property `quarkus.embedded.postgresql.data.dir`
 
+### Multiple Datasources
+
+This extension supports the usage of multiple datasources when the application has more than datasource which are defined by a specific name for each one of them,
+see the [datasources guide](https://quarkus.io/guides/datasource#multiple-datasources) for more details.
+
+The extension uses the configuration of each named datasource matching the `db-kind` property to automatically create the databases on the embedded PostgreSQL for
+each defined datasource and inject the proper configuration intro the application, such as the URL for the datasource.
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
