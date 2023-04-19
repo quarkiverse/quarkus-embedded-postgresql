@@ -1,6 +1,6 @@
 package io.quarkiverse.embedded.postgresql.it;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.reactive.datasource.ReactiveDataSource;
