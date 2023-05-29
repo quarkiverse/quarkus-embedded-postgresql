@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>quarkus-embedded-postgresql-docs</artifactId>
-    <name>Quarkus - Embedded Postgres - Documentation</name>
+    <name>Quarkus :: Embedded :: PostgreSQL :: Documentation</name>
 
     <dependencies>
         <!-- Make sure the doc is built after the other artifacts -->
