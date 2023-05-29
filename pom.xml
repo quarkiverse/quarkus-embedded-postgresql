@@ -10,7 +10,7 @@
   <groupId>io.quarkiverse.embedded.postgresql</groupId>
   <artifactId>quarkus-embedded-postgresql-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>Quarkus :: Embedded:: PostgreSQL :: Parent</name>
+  <name>Quarkus :: Embedded :: PostgreSQL :: Parent</name>
   <packaging>pom</packaging>
 
   <modules>
@@ -24,7 +24,7 @@
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <quarkus.version>2.16.2.Final</quarkus.version>
+    <quarkus.version>2.16.7.Final</quarkus.version>
     <version.io.zonky.test>2.0.2</version.io.zonky.test>
   </properties>
   <dependencyManagement>

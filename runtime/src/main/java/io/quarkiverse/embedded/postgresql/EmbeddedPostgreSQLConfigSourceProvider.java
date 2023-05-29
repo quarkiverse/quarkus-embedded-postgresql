@@ -34,13 +34,13 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
     public Iterable<ConfigSource> getConfigSources(ClassLoader forClassLoader) {
         Map<String, String> allConfigs = new HashMap<>();
 
-        startupInfo.getDatabases().entrySet().forEach(db -> {
-            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, db.getKey()),
-                    format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), db.getValue()));
-            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, db.getKey()),
-                    format(DEFAULT_JDBC_URL, startupInfo.getPort(), db.getValue()));
-            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_USERNAME, db.getKey()), DEFAULT_USERNAME);
-            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_PASSWORD, db.getKey()), DEFAULT_PASSWORD);
+        startupInfo.getDatabases().forEach((key, value) -> {
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, key),
+                    format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), value));
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, key),
+                    format(DEFAULT_JDBC_URL, startupInfo.getPort(), value));
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_USERNAME, key), DEFAULT_USERNAME);
+            allConfigs.put(format(QUARKUS_NAMED_DATASOURCE_PASSWORD, key), DEFAULT_PASSWORD);
         });
 
         allConfigs.put(QUARKUS_DATASOURCE_REACTIVE_URL, format(DEFAULT_REACTIVE_URL, startupInfo.getPort(), DEFAULT_DATABASE));
