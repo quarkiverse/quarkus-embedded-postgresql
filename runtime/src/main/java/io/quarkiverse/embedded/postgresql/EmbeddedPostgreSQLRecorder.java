@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,6 +34,13 @@ public class EmbeddedPostgreSQLRecorder {
     public RuntimeValue<StartupInfo> startPostgres(ShutdownContext shutdownContext,
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig) throws IOException {
         Builder builder = EmbeddedPostgres.builder();
+
+        ConfigProvider.getConfig().getOptionalValue("quarkus.embedded.postgresql.startup.wait", Long.class).ifPresent(
+                timeout -> {
+                    logger.infov("PG startup timeout set to {0}", timeout);
+                    builder.setPGStartupWait(Duration.ofMillis(timeout));
+                });
+
         ConfigProvider.getConfig().getOptionalValue("quarkus.embedded.postgresql.data.dir", String.class).ifPresent(path -> {
             logger.infov("Setting embedded postgresql data dir to {0}", path);
             builder.setDataDirectory(path);
