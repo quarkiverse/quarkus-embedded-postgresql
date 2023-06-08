@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.spi.ConfigSourceProvider;
 import org.jboss.logging.Logger;
@@ -34,14 +35,15 @@ public class EmbeddedPostgreSQLRecorder {
     public RuntimeValue<StartupInfo> startPostgres(ShutdownContext shutdownContext,
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig) throws IOException {
         Builder builder = EmbeddedPostgres.builder();
+        Config config = ConfigProvider.getConfig();
 
-        ConfigProvider.getConfig().getOptionalValue("quarkus.embedded.postgresql.startup.wait", Long.class).ifPresent(
+        config.getOptionalValue("quarkus.embedded.postgresql.startup.wait", Long.class).ifPresent(
                 timeout -> {
                     logger.infov("PG startup timeout set to {0}", timeout);
                     builder.setPGStartupWait(Duration.ofMillis(timeout));
                 });
 
-        ConfigProvider.getConfig().getOptionalValue("quarkus.embedded.postgresql.data.dir", String.class).ifPresent(path -> {
+        config.getOptionalValue("quarkus.embedded.postgresql.data.dir", String.class).ifPresent(path -> {
             logger.infov("Setting embedded postgresql data dir to {0}", path);
             builder.setDataDirectory(path);
             builder.setCleanDataDirectory(false);

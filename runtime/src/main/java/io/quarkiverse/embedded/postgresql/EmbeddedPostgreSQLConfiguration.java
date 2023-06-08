@@ -14,4 +14,10 @@ public class EmbeddedPostgreSQLConfiguration {
      */
     @ConfigItem(name = "data.dir")
     public Optional<String> dataDir;
+
+    /**
+     * How long PostgreSQL will have to start before it times out. Value is milliseconds.
+     */
+    @ConfigItem(name = "startup.wait")
+    public Optional<Long> startupWait;
 }
