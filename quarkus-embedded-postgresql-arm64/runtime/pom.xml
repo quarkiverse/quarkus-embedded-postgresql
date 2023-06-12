@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.quarkiverse.embedded.postgresql</groupId>
+    <artifactId>quarkus-embedded-postgresql-parent-arm64</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>quarkus-embedded-postgresql-arm64</artifactId>
+  <name>Quarkus :: Embedded :: PostgreSQL :: ARM64 :: Runtime</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.quarkiverse.embedded.postgresql</groupId>
+      <artifactId>quarkus-embedded-postgresql-common-runtime</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.zonky.test.postgres</groupId>
+      <artifactId>embedded-postgres-binaries-linux-arm64v8</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bootstrap-maven-plugin</artifactId>
+        <version>${quarkus.version}</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>extension-descriptor</goal>
+            </goals>
+            <configuration>
+              <deployment>${project.groupId}:quarkus-embedded-postgresql-deployment-arm64:${project.version}</deployment>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>io.quarkus</groupId>
+              <artifactId>quarkus-extension-processor</artifactId>
+              <version>${quarkus.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>macos</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.zonky.test.postgres</groupId>
+          <artifactId>embedded-postgres-binaries-darwin-arm64v8</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+</project>

@@ -7,6 +7,7 @@
     <artifactId>quarkiverse-parent</artifactId>
     <version>12</version>
   </parent>
+
   <groupId>io.quarkiverse.embedded.postgresql</groupId>
   <artifactId>quarkus-embedded-postgresql-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
@@ -14,18 +15,19 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>runtime</module>
-    <module>deployment</module>
-    <module>docs</module>
+    <module>quarkus-embedded-postgresql-common</module>
+    <module>quarkus-embedded-postgresql-amd64</module>
+    <module>quarkus-embedded-postgresql-arm64</module>
   </modules>
-  
-    <properties>
+
+  <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>2.16.7.Final</quarkus.version>
     <version.io.zonky.test>2.0.2</version.io.zonky.test>
+    <version.io.zonky.test.postgres>15.2.0</version.io.zonky.test.postgres>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -40,9 +42,17 @@
         <groupId>io.zonky.test</groupId>
         <artifactId>embedded-postgres</artifactId>
         <version>${version.io.zonky.test}</version>
-       </dependency>
+      </dependency>
+      <dependency>
+        <groupId>io.zonky.test.postgres</groupId>
+        <artifactId>embedded-postgres-binaries-bom</artifactId>
+        <version>${version.io.zonky.test.postgres}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
+
   <build>
     <pluginManagement>
       <plugins>
@@ -62,19 +72,31 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8.1</version>
+        <executions>
+          <execution>
+            <id>default-deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>it</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>!true</value>
-        </property>
-      </activation>
-      <modules>
-        <module>integration-tests</module>
-      </modules>
-    </profile>
-  </profiles>
+
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>nexus</id>
+      <url>https://nexus.spolti.dev:8443/repository/local-hosted/</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+
 </project>

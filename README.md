@@ -14,6 +14,14 @@ Include this dependency in your pom
    </dependency>
 ```
 
+For ARM64 architecture:
+```
+   <dependency>
+     <groupId>io.quarkiverse.embedded.postgresql</groupId>
+     <artifactId>quarkus-embedded-postgresql-arm64</artifactId>
+   </dependency>
+```
+
 You can now inject in your code a DataSource object (if you are JDBC friend) or a PgPool reference (if you prefer reactive) without adding any further property.
 
 You can optionally persist information into file system by setting the desired path as value of property `quarkus.embedded.postgresql.data.dir`
