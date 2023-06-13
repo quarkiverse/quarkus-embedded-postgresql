@@ -5,12 +5,21 @@ It is mainly oriented for single pod k8s deployments or integration testing.
 
 ## Usage
 
-Include this dependency in your pom 
+For AMD64, include this dependency in your pom 
 
 ```
    <dependency>
      <groupId>io.quarkiverse.embedded.postgresql</groupId>
      <artifactId>quarkus-embedded-postgresql</artifactId>
+   </dependency>
+```
+
+For ARM64 architecture:
+
+```
+   <dependency>
+     <groupId>io.quarkiverse.embedded.postgresql</groupId>
+     <artifactId>quarkus-embedded-postgresql-arm64</artifactId>
    </dependency>
 ```
 
