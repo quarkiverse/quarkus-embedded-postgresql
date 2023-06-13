@@ -15,7 +15,11 @@
       <groupId>io.quarkiverse.embedded.postgresql</groupId>
       <artifactId>quarkus-embedded-postgresql-common-integration-tests</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.embedded.postgresql</groupId>
+      <artifactId>quarkus-embedded-postgresql</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
