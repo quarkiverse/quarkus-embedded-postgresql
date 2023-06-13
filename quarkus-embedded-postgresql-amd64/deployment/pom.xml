@@ -18,11 +18,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkiverse.embedded.postgresql</groupId>
-      <artifactId>quarkus-embedded-postgresql-common-runtime</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkiverse.embedded.postgresql</groupId>
       <artifactId>quarkus-embedded-postgresql</artifactId>
       <version>${project.version}</version>
     </dependency>
