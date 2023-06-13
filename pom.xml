@@ -10,7 +10,7 @@
 
   <groupId>io.quarkiverse.embedded.postgresql</groupId>
   <artifactId>quarkus-embedded-postgresql-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.0.5</version>
   <name>Quarkus :: Embedded :: PostgreSQL :: Parent</name>
   <packaging>pom</packaging>
 
@@ -74,4 +74,8 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <scm>
+    <tag>0.0.5</tag>
+  </scm>
 </project>
