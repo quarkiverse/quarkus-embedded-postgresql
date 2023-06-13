@@ -8,7 +8,6 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>io.quarkiverse.embedded.postgresql</groupId>
   <artifactId>quarkus-embedded-postgresql-parent-amd64</artifactId>
 
   <name>Quarkus :: Embedded :: PostgreSQL :: AMD64 :: Parent</name>
@@ -17,7 +16,6 @@
   <modules>
     <module>runtime</module>
     <module>deployment</module>
-    <module>docs</module>
   </modules>
 
   <build>

@@ -1,1 +1,0 @@
-* xref:index.adoc[Quarkus Embedded Postgres ARM64]

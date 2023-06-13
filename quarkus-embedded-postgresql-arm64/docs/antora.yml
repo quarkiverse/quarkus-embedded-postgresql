@@ -1,5 +1,0 @@
-name: quarkus-embedded-postgresql ARM64
-title: Quarkus Embedded Postgresql ARM64
-version: dev
-nav:
-  - modules/ROOT/nav.adoc

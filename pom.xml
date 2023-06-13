@@ -18,6 +18,7 @@
     <module>quarkus-embedded-postgresql-common</module>
     <module>quarkus-embedded-postgresql-amd64</module>
     <module>quarkus-embedded-postgresql-arm64</module>
+    <module>quarkus-embedded-postgresql-docs</module>
   </modules>
 
   <properties>

@@ -28,7 +28,13 @@
       <artifactId>quarkus-embedded-postgresql-arm64</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>io.quarkiverse.embedded.postgresql</groupId>
+      <artifactId>quarkus-embedded-postgresql-common-deployment</artifactId>
+      <version>${project.version}</version>
+       <type>test-jar</type>
+       <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5-internal</artifactId>

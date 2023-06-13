@@ -5,7 +5,7 @@ It is mainly oriented for single pod k8s deployments or integration testing.
 
 ## Usage
 
-Include this dependency in your pom 
+For AMD64, include this dependency in your pom 
 
 ```
    <dependency>
@@ -15,6 +15,7 @@ Include this dependency in your pom
 ```
 
 For ARM64 architecture:
+
 ```
    <dependency>
      <groupId>io.quarkiverse.embedded.postgresql</groupId>
