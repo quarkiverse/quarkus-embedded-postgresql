@@ -1,9 +1,0 @@
-name: Embedded PostgreSQL
-description: PostgreSQL with Zonky Embedded Postgres ARM64
-metadata:
-#  keywords:
-#    - inmemory-postgresql
-#  guide: ...
-#  categories:
-#    - "miscellaneous"
-#  status: "preview"
