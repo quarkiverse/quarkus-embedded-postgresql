@@ -33,6 +33,10 @@
       <artifactId>embedded-postgres</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.zonky.test.postgres</groupId>
+      <artifactId>embedded-postgres-binaries-linux-arm64v8</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-agroal</artifactId>
       <optional>true</optional>

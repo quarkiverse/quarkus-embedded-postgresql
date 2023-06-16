@@ -25,4 +25,20 @@ endif::add-copy-button-to-env-var[]
 --|string 
 |
 
+
+a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait[quarkus.embedded.postgresql.startup.wait]`
+
+[.description]
+--
+How long PostgreSQL will have to start before it times out. Value is milliseconds.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_EMBEDDED_POSTGRESQL_STARTUP_WAIT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_EMBEDDED_POSTGRESQL_STARTUP_WAIT+++`
+endif::add-copy-button-to-env-var[]
+--|long 
+|
+
 |===
