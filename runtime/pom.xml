@@ -37,6 +37,11 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>io.zonky.test.postgres</groupId>
+      <artifactId>embedded-postgres-binaries-darwin-arm64v8</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-agroal</artifactId>
       <optional>true</optional>
@@ -84,21 +89,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>macos</id>
-      <activation>
-        <os>
-          <family>mac</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.zonky.test.postgres</groupId>
-          <artifactId>embedded-postgres-binaries-darwin-amd64</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 </project>

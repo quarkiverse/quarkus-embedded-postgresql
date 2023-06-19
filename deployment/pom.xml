@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>quarkus-embedded-postgresql-deployment</artifactId>
-	<name>Quarkus :: Embedded :: PostgreSQL :: Runtime</name>
+	<name>Quarkus :: Embedded :: PostgreSQL :: Deployment</name>
 	<dependencies>
 		<dependency>
 			<groupId>io.quarkus</groupId>
