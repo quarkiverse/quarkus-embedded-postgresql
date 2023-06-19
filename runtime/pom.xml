@@ -33,11 +33,6 @@
     </dependency>
     <dependency>
       <groupId>io.zonky.test.postgres</groupId>
-      <artifactId>embedded-postgres-binaries-linux-arm64v8</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.zonky.test.postgres</groupId>
       <artifactId>embedded-postgres-binaries-darwin-arm64v8</artifactId>
       <scope>runtime</scope>
     </dependency>
