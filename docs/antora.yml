@@ -1,5 +1,5 @@
 name: quarkus-embedded-postgresql
-title: Quarkus Embedded Postgresql
+title: Embedded Postgresql
 version: dev
 nav:
   - modules/ROOT/nav.adoc
