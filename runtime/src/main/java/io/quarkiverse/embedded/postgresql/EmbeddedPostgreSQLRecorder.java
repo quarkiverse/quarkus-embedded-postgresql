@@ -6,8 +6,9 @@ import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigSourceP
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
@@ -78,10 +79,17 @@ public class EmbeddedPostgreSQLRecorder {
         Objects.requireNonNull(dbName);
         Objects.requireNonNull(userName);
         String sanitizedDbName = PostgreSQLSyntaxUtils.sanitizeDbName(dbName);
-        String createDbStatement = String.format("CREATE DATABASE %s OWNER %s", sanitizedDbName, userName);
+        String createDbStatement = String.format(
+                "SELECT 'CREATE DATABASE %s OWNER %s' as createQuery WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '%s')",
+                sanitizedDbName, userName, sanitizedDbName);
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement stmt = connection.prepareStatement(createDbStatement)) {
-            stmt.executeUpdate();
+                Statement stmt = connection.createStatement()) {
+            connection.beginRequest();
+            ResultSet result = stmt.executeQuery(createDbStatement);
+            if (result.next()) {
+                stmt.executeUpdate(result.getString("createQuery"));
+            }
+            connection.endRequest();
             return sanitizedDbName;
         } catch (SQLException e) {
             throw new IllegalStateException("Error creating DB " + dbName, e);
