@@ -84,12 +84,10 @@ public class EmbeddedPostgreSQLRecorder {
                 sanitizedDbName, userName, sanitizedDbName);
         try (Connection connection = dataSource.getConnection();
                 Statement stmt = connection.createStatement()) {
-            connection.beginRequest();
             ResultSet result = stmt.executeQuery(createDbStatement);
             if (result.next()) {
                 stmt.executeUpdate(result.getString("createQuery"));
             }
-            connection.endRequest();
             return sanitizedDbName;
         } catch (SQLException e) {
             throw new IllegalStateException("Error creating DB " + dbName, e);
