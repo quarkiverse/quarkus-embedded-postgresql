@@ -1,7 +1,8 @@
 package io.quarkiverse.embedded.postgresql.it;
 
-import javax.enterprise.context.Dependent;
 import javax.sql.DataSource;
+
+import jakarta.enterprise.context.Dependent;
 
 import io.quarkus.arc.profile.IfBuildProfile;
 
