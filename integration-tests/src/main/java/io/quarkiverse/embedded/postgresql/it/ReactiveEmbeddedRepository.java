@@ -3,7 +3,7 @@ package io.quarkiverse.embedded.postgresql.it;
 import java.util.Collection;
 import java.util.Optional;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import io.quarkus.arc.DefaultBean;
 import io.smallrye.mutiny.Multi;

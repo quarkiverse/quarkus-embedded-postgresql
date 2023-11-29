@@ -12,6 +12,7 @@ h|Default
 
 a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir[quarkus.embedded.postgresql.data.dir]`
 
+
 [.description]
 --
 Directory where persistence information is hold
@@ -27,6 +28,7 @@ endif::add-copy-button-to-env-var[]
 
 
 a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait[quarkus.embedded.postgresql.startup.wait]`
+
 
 [.description]
 --
