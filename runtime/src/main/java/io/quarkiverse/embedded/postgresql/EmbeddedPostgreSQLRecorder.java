@@ -38,6 +38,12 @@ public class EmbeddedPostgreSQLRecorder {
         Builder builder = EmbeddedPostgres.builder();
         Config config = ConfigProvider.getConfig();
 
+        config.getOptionalValue("quarkus.embedded.postgresql.port", Integer.class).ifPresent(
+                port -> {
+                    logger.infov("PG port will be set to {0}", port);
+                    builder.setPort(port);
+                });
+
         config.getOptionalValue("quarkus.embedded.postgresql.startup.wait", Long.class).ifPresent(
                 timeout -> {
                     logger.infov("PG startup timeout set to {0}", timeout);

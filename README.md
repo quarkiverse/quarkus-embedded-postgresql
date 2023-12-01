@@ -16,7 +16,12 @@ Include this dependency in your pom
 
 You can now inject in your code a DataSource object (if you are JDBC friend) or a PgPool reference (if you prefer reactive) without adding any further property.
 
-You can optionally persist information into file system by setting the desired path as value of property `quarkus.embedded.postgresql.data.dir`
+### Configuration properties
+
+| property                               | description                                                                                                                                        |
+|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `quarkus.embedded.postgresql.data.dir` | You can optionally persist information into file system by setting the desired path as value of property                                           |  
+| `quarkus.embedded.postgresql.port`     | You can optinally configure the postgresql server port by using this property. If no value is confirured a random available port will be selected. |
 
 ### Multiple Datasources
 

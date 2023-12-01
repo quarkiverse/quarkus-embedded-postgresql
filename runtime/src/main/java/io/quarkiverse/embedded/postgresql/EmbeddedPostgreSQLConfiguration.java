@@ -20,4 +20,11 @@ public class EmbeddedPostgreSQLConfiguration {
      */
     @ConfigItem(name = "startup.wait")
     public Optional<Long> startupWait;
+
+    /**
+     * Optionally configurable port for the postgresql server. If not set, a random port is picked.
+     */
+    @ConfigItem(name = "port")
+    public Optional<Integer> port;
+
 }
