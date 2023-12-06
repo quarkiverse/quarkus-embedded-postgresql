@@ -3,6 +3,11 @@ package io.quarkiverse.embedded.postgresql.deployment;
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConnectionConfigurer;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLRecorder;
@@ -17,6 +22,7 @@ import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationSourceValueBuildItem;
@@ -46,6 +52,20 @@ class EmbeddedPostgreSQLProcessor {
     }
 
     @BuildStep
+    void registerDevServices(BuildProducer<DevServicesResultBuildItem> devServices) {
+        Map<String, String> devServerConfigMap = new LinkedHashMap<>();
+        Config config = ConfigProvider.getConfig();
+        for (String propertyName : config.getPropertyNames()) {
+            if (propertyName.startsWith("quarkus.datasource.") || propertyName.startsWith("quarkus.embedded.postgresql.")) {
+                devServerConfigMap.put(propertyName, config.getConfigValue(propertyName).getValue());
+            }
+        }
+        DevServicesResultBuildItem.RunningDevService devService = new DevServicesResultBuildItem.RunningDevService(
+                FEATURE, null, null, devServerConfigMap);
+        devServices.produce(devService.toBuildItem());
+    }
+
+    @BuildStep
     void configureAgroalConnection(BuildProducer<AdditionalBeanBuildItem> additionalBeans, Capabilities capabilities) {
         if (capabilities.isPresent(Capability.AGROAL)) {
             additionalBeans
@@ -72,4 +92,5 @@ class EmbeddedPostgreSQLProcessor {
     public void nativeResources(BuildProducer<NativeImageResourcePatternsBuildItem> resource) {
         resource.produce(NativeImageResourcePatternsBuildItem.builder().includeGlob("postgres-*.txz").build());
     }
+
 }

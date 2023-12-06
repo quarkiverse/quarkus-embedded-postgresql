@@ -103,4 +103,5 @@ public class EmbeddedPostgreSQLRecorder {
     public RuntimeValue<ConfigSourceProvider> configSources(RuntimeValue<StartupInfo> info) {
         return new RuntimeValue<>(new EmbeddedPostgreSQLConfigSourceProvider(info.getValue()));
     }
+
 }
