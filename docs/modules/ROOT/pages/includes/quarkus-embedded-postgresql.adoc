@@ -10,7 +10,7 @@ h|[[quarkus-embedded-postgresql_configuration]]link:#quarkus-embedded-postgresql
 h|Type
 h|Default
 
-a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir[quarkus.embedded.postgresql.data.dir]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.data-dir]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.data-dir[quarkus.embedded.postgresql.data-dir]`
 
 
 [.description]
@@ -27,7 +27,7 @@ endif::add-copy-button-to-env-var[]
 |
 
 
-a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait[quarkus.embedded.postgresql.startup.wait]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup-wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup-wait[quarkus.embedded.postgresql.startup-wait]`
 
 
 [.description]
@@ -44,12 +44,12 @@ endif::add-copy-button-to-env-var[]
 |
 
 
-a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.port]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.port[quarkus.embedded.postgresql.port]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.port]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.port[quarkus.embedded.postgresql.port]`
 
 
 [.description]
 --
-Optionally configurable port for the postgresql server. If not set, a random port is picked.
+Optionally configurable port for the postgresql server. If not set, 62537 is picked.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_EMBEDDED_POSTGRESQL_PORT+++[]
@@ -58,6 +58,6 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_EMBEDDED_POSTGRESQL_PORT+++`
 endif::add-copy-button-to-env-var[]
 --|int 
-|
+|`62537`
 
 |===

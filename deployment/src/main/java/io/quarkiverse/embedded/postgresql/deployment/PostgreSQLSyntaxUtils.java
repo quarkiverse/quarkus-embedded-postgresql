@@ -1,4 +1,4 @@
-package io.quarkiverse.embedded.postgresql;
+package io.quarkiverse.embedded.postgresql.deployment;
 
 import java.util.regex.Pattern;
 
