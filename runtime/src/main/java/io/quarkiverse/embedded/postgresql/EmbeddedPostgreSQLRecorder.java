@@ -44,6 +44,9 @@ public class EmbeddedPostgreSQLRecorder {
                     builder.setPort(port);
                 });
 
+        builder.setConnectConfig("stringtype",
+                config.getOptionalValue("quarkus.embedded.postgresql.stringtype", String.class).orElse("unspecified"));
+
         config.getOptionalValue("quarkus.embedded.postgresql.startup.wait", Long.class).ifPresent(
                 timeout -> {
                     logger.infov("PG startup timeout set to {0}", timeout);

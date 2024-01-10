@@ -27,4 +27,12 @@ public class EmbeddedPostgreSQLConfiguration {
     @ConfigItem(name = "port")
     public Optional<Integer> port;
 
+    /**
+     * Set string type
+     *
+     * @see https://jdbc.postgresql.org/documentation/use/
+     */
+    @ConfigItem(name = "stringtype", defaultValue = "unspecified")
+    public String stringtype;
+
 }
