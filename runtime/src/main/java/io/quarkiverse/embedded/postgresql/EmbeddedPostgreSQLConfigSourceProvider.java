@@ -20,8 +20,8 @@ public class EmbeddedPostgreSQLConfigSourceProvider implements ConfigSourceProvi
     static final String QUARKUS_NAMED_DATASOURCE_USERNAME = "quarkus.datasource.\"%s\".username";
     static final String QUARKUS_NAMED_DATASOURCE_PASSWORD = "quarkus.datasource.\"%s\".password";
     static final String DEFAULT_DATABASE = "postgres";
-    static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s";
-    static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s";
+    static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s?stringtype=unspecified";
+    static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s?stringtype=unspecified";
     static final String DEFAULT_USERNAME = "postgres";
     static final String DEFAULT_PASSWORD = "postgres";
     private StartupInfo startupInfo;
