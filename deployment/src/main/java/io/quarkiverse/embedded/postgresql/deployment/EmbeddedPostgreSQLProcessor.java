@@ -180,12 +180,6 @@ class EmbeddedPostgreSQLProcessor {
         }
     }
 
-    //    @BuildStep
-    //    void embeddedPostgreSQLConfigFactory(BuildProducer<RunTimeConfigBuilderBuildItem> runTimeConfigBuilder) {
-    //        runTimeConfigBuilder
-    //                .produce(new RunTimeConfigBuilderBuildItem(EmbeddedPostgreSQLConfigSourceFactoryBuilder.class.getName()));
-    //    }
-
     @BuildStep
     void configureAgroalConnection(BuildProducer<AdditionalBeanBuildItem> additionalBeans, Capabilities capabilities) {
         if (capabilities.isPresent(Capability.AGROAL)) {
