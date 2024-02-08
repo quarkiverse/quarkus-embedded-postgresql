@@ -1,5 +1,6 @@
 package io.quarkiverse.embedded.postgresql;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import io.quarkus.runtime.annotations.ConfigPhase;
@@ -32,5 +33,18 @@ public interface EmbeddedPostgreSQLConfig {
      */
     @WithDefault("62537")
     Integer port();
+
+    static boolean isEqual(EmbeddedPostgreSQLConfig d1, EmbeddedPostgreSQLConfig d2) {
+        if (!Objects.equals(d1.dataDir(), d2.dataDir())) {
+            return false;
+        }
+        if (!Objects.equals(d1.startupWait(), d2.startupWait())) {
+            return false;
+        }
+        if (!Objects.equals(d1.port(), d2.port())) {
+            return false;
+        }
+        return true;
+    }
 
 }

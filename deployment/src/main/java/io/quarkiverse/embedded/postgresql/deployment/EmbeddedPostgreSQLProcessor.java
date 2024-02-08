@@ -69,7 +69,7 @@ class EmbeddedPostgreSQLProcessor {
             BuildProducer<EmbeddedPostgreSQLDevServicesConfigBuildItem> pgBuildItemBuildProducer) {
 
         if (devService != null) {
-            boolean shouldShutdownTheBroker = !pgConfig.equals(cfg);
+            boolean shouldShutdownTheBroker = !EmbeddedPostgreSQLConfig.isEqual(cfg, pgConfig);
             if (!shouldShutdownTheBroker) {
                 return devService.toBuildItem();
             }
