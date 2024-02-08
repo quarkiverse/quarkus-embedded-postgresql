@@ -1,7 +1,9 @@
-package io.quarkiverse.embedded.postgresql;
+package io.quarkiverse.embedded.postgresql.deployment;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import io.quarkiverse.embedded.postgresql.PostgreSQLSyntaxUtils;
 
 class PostgreSQLSyntaxUtilsTest {
 
