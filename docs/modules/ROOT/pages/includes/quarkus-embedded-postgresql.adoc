@@ -10,7 +10,7 @@ h|[[quarkus-embedded-postgresql_configuration]]link:#quarkus-embedded-postgresql
 h|Type
 h|Default
 
-a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.data-dir]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.data-dir[quarkus.embedded.postgresql.data-dir]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir[quarkus.embedded.postgresql.data.dir]`
 
 
 [.description]
@@ -27,7 +27,7 @@ endif::add-copy-button-to-env-var[]
 |
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup-wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup-wait[quarkus.embedded.postgresql.startup-wait]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait[quarkus.embedded.postgresql.startup.wait]`
 
 
 [.description]
@@ -61,7 +61,7 @@ endif::add-copy-button-to-env-var[]
 |`62537`
 
 
-a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.stringtype]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.stringtype[quarkus.embedded.postgresql.stringtype]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.string-type]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.string-type[quarkus.embedded.postgresql.string-type]`
 
 
 [.description]
@@ -69,10 +69,10 @@ a| [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.stringtype]]`link:#
 Set string type
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_EMBEDDED_POSTGRESQL_STRINGTYPE+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_EMBEDDED_POSTGRESQL_STRING_TYPE+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_EMBEDDED_POSTGRESQL_STRINGTYPE+++`
+Environment variable: `+++QUARKUS_EMBEDDED_POSTGRESQL_STRING_TYPE+++`
 endif::add-copy-button-to-env-var[]
 --|string 
 |`unspecified`

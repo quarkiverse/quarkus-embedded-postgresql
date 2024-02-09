@@ -1,6 +1,5 @@
 package io.quarkiverse.embedded.postgresql.deployment;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -12,6 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.jboss.logging.Logger;
 
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConnectionConfigurer;
 import io.quarkus.agroal.spi.JdbcDriverBuildItem;
@@ -34,9 +39,6 @@ import io.quarkus.deployment.console.StartupLogCompressor;
 import io.quarkus.deployment.logging.LoggingSetupBuildItem;
 import io.quarkus.deployment.pkg.steps.NativeOrNativeSourcesBuild;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.jboss.logging.Logger;
 
 class EmbeddedPostgreSQLProcessor {
 
@@ -44,8 +46,8 @@ class EmbeddedPostgreSQLProcessor {
 
     private static final String FEATURE = "embedded-postgres";
     private static final String DEFAULT_DATABASE = "postgres";
-    private static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s";
-    private static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s";
+    private static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s?stringtype=unspecified";
+    private static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s?stringtype=unspecified";
     private static final String DEFAULT_USERNAME = "postgres";
     private static final String DEFAULT_PASSWORD = "postgres";
 
@@ -68,7 +70,7 @@ class EmbeddedPostgreSQLProcessor {
             BuildProducer<EmbeddedPostgreSQLDevServicesConfigBuildItem> pgBuildItemBuildProducer) {
 
         if (devService != null) {
-            boolean shouldShutdownTheBroker = !pgConfig.equals(cfg);
+            boolean shouldShutdownTheBroker = !EmbeddedPostgreSQLConfig.isEqual(cfg, pgConfig);
             if (!shouldShutdownTheBroker) {
                 return devService.toBuildItem();
             }
@@ -124,7 +126,6 @@ class EmbeddedPostgreSQLProcessor {
             EmbeddedPostgreSQLConfig postgreSQLConfig) throws IOException {
 
         if (postgreSQLConfig.port().get() <= 0) {
-            // no mailer configured
             log.warn(
                     "Not starting Embedded PostgreSQL, as no 'quarkus.embedded.postgresql.port' has been configured.");
             return null;
@@ -149,6 +150,8 @@ class EmbeddedPostgreSQLProcessor {
             builder.setCleanDataDirectory(false);
         });
 
+        builder.setConnectConfig("stringtype", postgreSQLConfig.stringType());
+
         EmbeddedPostgres pg = builder.start();
         log.infov(
                 "Embedded Postgres started at port \"{0,number,#}\" with database \"{1}\", user \"{2}\" and password \"{3}\"",
@@ -161,7 +164,21 @@ class EmbeddedPostgreSQLProcessor {
                 devServerConfigMap.put(propertyName, config.getConfigValue(propertyName).getValue());
             }
         }
-        devServerConfigMap.putAll(createDatabases(pg, dataSourcesBuildTimeConfig, DEFAULT_USERNAME));
+
+        createDatabases(pg, dataSourcesBuildTimeConfig, DEFAULT_USERNAME).forEach((k, v) -> devServerConfigMap.putAll(
+                Map.of(
+                        String.format("quarkus.datasource.%s.jdbc.url", k),
+                        String.format(DEFAULT_JDBC_URL, pg.getPort(), v),
+                        String.format("quarkus.datasource.%s.reactive.url", k),
+                        String.format(DEFAULT_REACTIVE_URL, pg.getPort(), v),
+                        String.format("quarkus.datasource.%s.username", k), DEFAULT_USERNAME,
+                        String.format("quarkus.datasource.%s.password", k), DEFAULT_PASSWORD)));
+
+        devServerConfigMap.putAll(Map.of(
+                "quarkus.datasource.jdbc.url", String.format(DEFAULT_JDBC_URL, pg.getPort(), DEFAULT_DATABASE),
+                "quarkus.datasource.reactive.url", String.format(DEFAULT_REACTIVE_URL, pg.getPort(), DEFAULT_DATABASE),
+                "quarkus.datasource.username", DEFAULT_USERNAME,
+                "quarkus.datasource.password", DEFAULT_PASSWORD));
 
         return new DevServicesResultBuildItem.RunningDevService(FEATURE,
                 null,
