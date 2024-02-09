@@ -31,7 +31,6 @@ public interface EmbeddedPostgreSQLConfig {
     /**
      * Optionally configurable port for the postgresql server. If not set, 62537 is picked.
      */
-    @WithDefault("62537")
     Optional<Integer> port();
 
     /**

@@ -125,12 +125,6 @@ class EmbeddedPostgreSQLProcessor {
     private DevServicesResultBuildItem.RunningDevService startPostgres(DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             EmbeddedPostgreSQLConfig postgreSQLConfig) throws IOException {
 
-        if (postgreSQLConfig.port().get() <= 0) {
-            log.warn(
-                    "Not starting Embedded PostgreSQL, as no 'quarkus.embedded.postgresql.port' has been configured.");
-            return null;
-        }
-
         EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
         postgreSQLConfig.port().ifPresent(
                 port -> {
