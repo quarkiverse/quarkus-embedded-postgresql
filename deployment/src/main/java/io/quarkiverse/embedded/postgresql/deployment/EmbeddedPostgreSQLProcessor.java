@@ -230,8 +230,9 @@ class EmbeddedPostgreSQLProcessor {
     private Map<String, String> createDatabases(EmbeddedPostgres pg, DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             String userName) {
         pg.getDatabase(DEFAULT_USERNAME, DEFAULT_DATABASE);
-        return dataSourcesBuildTimeConfig.namedDataSources.entrySet().stream()
-                .filter(ds -> Objects.equals(ds.getValue().dbKind.get(), "postgresql"))
+        return dataSourcesBuildTimeConfig.dataSources().entrySet().stream()
+                .filter(e -> !e.getKey().equals("<default>"))
+                .filter(ds -> Objects.equals(ds.getValue().dbKind().orElse(""), "postgresql"))
                 .map(Map.Entry::getKey)
                 .map(ds -> Map.entry(ds, createDatabase(pg.getPostgresDatabase(), ds, userName)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

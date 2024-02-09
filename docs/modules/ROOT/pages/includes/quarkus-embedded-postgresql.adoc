@@ -10,7 +10,7 @@ h|[[quarkus-embedded-postgresql_configuration]]link:#quarkus-embedded-postgresql
 h|Type
 h|Default
 
-a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.data.dir[quarkus.embedded.postgresql.data.dir]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus-embedded-postgresql-data-dir]]`link:#quarkus-embedded-postgresql_quarkus-embedded-postgresql-data-dir[quarkus.embedded.postgresql.data.dir]`
 
 
 [.description]
@@ -27,7 +27,7 @@ endif::add-copy-button-to-env-var[]
 |
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.startup.wait[quarkus.embedded.postgresql.startup.wait]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus-embedded-postgresql-startup-wait]]`link:#quarkus-embedded-postgresql_quarkus-embedded-postgresql-startup-wait[quarkus.embedded.postgresql.startup.wait]`
 
 
 [.description]
@@ -44,7 +44,7 @@ endif::add-copy-button-to-env-var[]
 |
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.port]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.port[quarkus.embedded.postgresql.port]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus-embedded-postgresql-port]]`link:#quarkus-embedded-postgresql_quarkus-embedded-postgresql-port[quarkus.embedded.postgresql.port]`
 
 
 [.description]
@@ -61,7 +61,7 @@ endif::add-copy-button-to-env-var[]
 |`62537`
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus.embedded.postgresql.string-type]]`link:#quarkus-embedded-postgresql_quarkus.embedded.postgresql.string-type[quarkus.embedded.postgresql.string-type]`
+a|icon:lock[title=Fixed at build time] [[quarkus-embedded-postgresql_quarkus-embedded-postgresql-string-type]]`link:#quarkus-embedded-postgresql_quarkus-embedded-postgresql-string-type[quarkus.embedded.postgresql.string-type]`
 
 
 [.description]
