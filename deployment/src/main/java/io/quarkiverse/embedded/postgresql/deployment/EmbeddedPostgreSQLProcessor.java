@@ -60,6 +60,12 @@ class EmbeddedPostgreSQLProcessor {
         return new FeatureBuildItem(FEATURE);
     }
 
+    /**
+     * DevService modeled after core Quarkus DataSource processor:
+     *
+     * @see <a href=
+     *      "https://github.com/quarkusio/quarkus/blob/main/extensions/datasource/deployment/src/main/java/io/quarkus/datasource/deployment/devservices/DevServicesDatasourceProcessor.java">...</a>
+     */
     @BuildStep
     public DevServicesResultBuildItem startPostgresDevService(
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
