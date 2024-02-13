@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 
 import jakarta.inject.Inject;
 
+import io.quarkus.devui.runtime.config.ConfigDescription;
 import io.quarkus.devui.runtime.config.ConfigDescriptionBean;
-import io.quarkus.vertx.http.runtime.devmode.ConfigDescription;
 
 public class EmbeddedPostgreSQLJsonRpcService {
 
