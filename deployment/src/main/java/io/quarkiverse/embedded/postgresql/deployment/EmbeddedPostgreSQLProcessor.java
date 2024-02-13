@@ -200,20 +200,6 @@ class EmbeddedPostgreSQLProcessor {
     }
 
     @BuildStep
-    void registerDevServices(BuildProducer<DevServicesResultBuildItem> devServices) {
-        Map<String, String> devServerConfigMap = new LinkedHashMap<>();
-        Config config = ConfigProvider.getConfig();
-        for (String propertyName : config.getPropertyNames()) {
-            if (propertyName.startsWith("quarkus.datasource.") || propertyName.startsWith("quarkus.embedded.postgresql.")) {
-                devServerConfigMap.put(propertyName, config.getConfigValue(propertyName).getValue());
-            }
-        }
-        DevServicesResultBuildItem.RunningDevService devService = new DevServicesResultBuildItem.RunningDevService(
-                FEATURE, null, null, devServerConfigMap);
-        devServices.produce(devService.toBuildItem());
-    }
-
-    @BuildStep
     void configureAgroalConnection(BuildProducer<AdditionalBeanBuildItem> additionalBeans, Capabilities capabilities) {
         if (capabilities.isPresent(Capability.AGROAL)) {
             additionalBeans
@@ -270,3 +256,4 @@ class EmbeddedPostgreSQLProcessor {
             throw new IllegalStateException("Error creating DB " + dbName, e);
         }
     }
+}
