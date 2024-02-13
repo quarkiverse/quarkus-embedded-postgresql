@@ -1,4 +1,9 @@
-# Quarkus - Embedded postgresql
+# Quarkus - Embedded PostgreSQL
+
+[![Version](https://img.shields.io/maven-central/v/io.quarkiverse.embedded.postgresql/quarkus-embedded-postgresql?logo=apache-maven&style=flat-square)](https://search.maven.org/artifact/io.quarkiverse.embedded-postgresql/quarkus-embedded-postgresql)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
+[![Build](https://github.com/quarkiverse/quarkus-embedded-postgresql/actions/workflows/build.yml/badge.svg)](https://github.com/quarkiverse/quarkus-embedded-postgresql/actions/workflows/build.yml)
+
 
 An alternative to quarkus-jdbc-postgres that rather than instantiating a pgsql server, uses zonky embedded library, reducing memory footprint. 
 It is mainly oriented for single pod k8s deployments or integration testing. 
