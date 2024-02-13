@@ -1,9 +1,14 @@
 name: Embedded PostgreSQL
-description: PostgreSQL with Zonky Embedded Postgres
 metadata:
-#  keywords:
-#    - inmemory-postgresql
-#  guide: ...
-#  categories:
-#    - "miscellaneous"
-#  status: "preview"
+  short-name: "embedded-postgresql"
+  keywords:
+    - "postgresql"
+    - "database"
+    - "embedded"
+  categories:
+    - "data"
+  config:
+    - "quarkus.embedded.postgresql."
+  status: "preview"
+  guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-embedded-postgresql/dev/index.html"
+  icon-url: "https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg"
