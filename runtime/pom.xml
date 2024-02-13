@@ -58,6 +58,7 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-jaxp</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
