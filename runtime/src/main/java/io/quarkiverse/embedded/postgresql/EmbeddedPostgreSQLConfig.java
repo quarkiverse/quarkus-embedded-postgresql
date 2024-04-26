@@ -1,4 +1,4 @@
-package io.quarkiverse.embedded.postgresql.deployment;
+package io.quarkiverse.embedded.postgresql;
 
 import java.util.Objects;
 import java.util.Optional;

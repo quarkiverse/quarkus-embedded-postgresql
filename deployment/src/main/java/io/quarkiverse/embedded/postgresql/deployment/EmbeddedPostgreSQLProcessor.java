@@ -1,24 +1,37 @@
 package io.quarkiverse.embedded.postgresql.deployment;
 
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_DATABASE;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_JDBC_URL;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_PASSWORD;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_REACTIVE_URL;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_USERNAME;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_JDBC_URL;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_PASSWORD;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_REACTIVE_URL;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_USERNAME;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_JDBC_URL;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_PASSWORD;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_REACTIVE_URL;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_USERNAME;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.getConfig;
+import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.getDBNames;
+import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
+
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
+import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfig;
+import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConnectionConfigurer;
+import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLDBUtils;
+import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLRecorder;
 import io.quarkus.agroal.spi.JdbcDriverBuildItem;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.processor.BuiltinScope;
@@ -27,12 +40,17 @@ import io.quarkus.datasource.common.runtime.DatabaseKind;
 import io.quarkus.datasource.runtime.DataSourcesBuildTimeConfig;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.Capability;
+import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
+import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
+import io.quarkus.deployment.builditem.ServiceStartBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourcePatternsBuildItem;
 import io.quarkus.deployment.console.ConsoleInstalledBuildItem;
 import io.quarkus.deployment.console.StartupLogCompressor;
@@ -45,11 +63,6 @@ class EmbeddedPostgreSQLProcessor {
     private static final Logger log = Logger.getLogger(EmbeddedPostgreSQLProcessor.class);
 
     private static final String FEATURE = "embedded-postgres";
-    private static final String DEFAULT_DATABASE = "postgres";
-    private static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s?stringtype=unspecified";
-    private static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s?stringtype=unspecified";
-    private static final String DEFAULT_USERNAME = "postgres";
-    private static final String DEFAULT_PASSWORD = "postgres";
 
     static volatile DevServicesResultBuildItem.RunningDevService devService;
     static volatile EmbeddedPostgreSQLConfig cfg;
@@ -60,13 +73,25 @@ class EmbeddedPostgreSQLProcessor {
         return new FeatureBuildItem(FEATURE);
     }
 
+    @BuildStep(onlyIfNot = IsDevelopment.class)
+    @Record(RUNTIME_INIT)
+    ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder, ShutdownContextBuildItem shutdown,
+            DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig, EmbeddedPostgreSQLConfig postgreSQLConfig,
+            BuildProducer<RunTimeConfigurationDefaultBuildItem> configProducer) {
+        final int port = postgreSQLConfig.port().orElseGet(EmbeddedPostgreSQLConfigUtils::getDefaultPort);
+        Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
+        recorder.startPostgres(shutdown, port, dbNames);
+        getConfig(port, dbNames).forEach((k, v) -> configProducer.produce(new RunTimeConfigurationDefaultBuildItem(k, v)));
+        return new ServiceStartBuildItem(FEATURE);
+    }
+
     /**
      * DevService modeled after core Quarkus DataSource processor:
      *
      * @see <a href=
      *      "https://github.com/quarkusio/quarkus/blob/main/extensions/datasource/deployment/src/main/java/io/quarkus/datasource/deployment/devservices/DevServicesDatasourceProcessor.java">...</a>
      */
-    @BuildStep
+    @BuildStep(onlyIf = IsDevelopment.class)
     public DevServicesResultBuildItem startPostgresDevService(
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             LaunchModeBuildItem launchMode,
@@ -157,6 +182,8 @@ class EmbeddedPostgreSQLProcessor {
                 "Embedded Postgres started at port \"{0,number,#}\" with database \"{1}\", user \"{2}\" and password \"{3}\"",
                 pg.getPort(), DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
 
+        Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
+
         Map<String, String> devServerConfigMap = new LinkedHashMap<>();
         Config config = ConfigProvider.getConfig();
         for (String propertyName : config.getPropertyNames()) {
@@ -164,21 +191,21 @@ class EmbeddedPostgreSQLProcessor {
                 devServerConfigMap.put(propertyName, config.getConfigValue(propertyName).getValue());
             }
         }
-
-        createDatabases(pg, dataSourcesBuildTimeConfig, DEFAULT_USERNAME).forEach((k, v) -> devServerConfigMap.putAll(
+        EmbeddedPostgreSQLDBUtils.createDatabases(pg, dbNames.values(), DEFAULT_USERNAME);
+        dbNames.forEach((k, v) -> devServerConfigMap.putAll(
                 Map.of(
-                        String.format("quarkus.datasource.%s.jdbc.url", k),
+                        String.format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, k),
                         String.format(DEFAULT_JDBC_URL, pg.getPort(), v),
-                        String.format("quarkus.datasource.%s.reactive.url", k),
+                        String.format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, k),
                         String.format(DEFAULT_REACTIVE_URL, pg.getPort(), v),
-                        String.format("quarkus.datasource.%s.username", k), DEFAULT_USERNAME,
-                        String.format("quarkus.datasource.%s.password", k), DEFAULT_PASSWORD)));
+                        String.format(QUARKUS_NAMED_DATASOURCE_USERNAME, k), DEFAULT_USERNAME,
+                        String.format(QUARKUS_NAMED_DATASOURCE_PASSWORD, k), DEFAULT_PASSWORD)));
 
         devServerConfigMap.putAll(Map.of(
-                "quarkus.datasource.jdbc.url", String.format(DEFAULT_JDBC_URL, pg.getPort(), DEFAULT_DATABASE),
-                "quarkus.datasource.reactive.url", String.format(DEFAULT_REACTIVE_URL, pg.getPort(), DEFAULT_DATABASE),
-                "quarkus.datasource.username", DEFAULT_USERNAME,
-                "quarkus.datasource.password", DEFAULT_PASSWORD));
+                QUARKUS_DATASOURCE_JDBC_URL, String.format(DEFAULT_JDBC_URL, pg.getPort(), DEFAULT_DATABASE),
+                QUARKUS_DATASOURCE_REACTIVE_URL, String.format(DEFAULT_REACTIVE_URL, pg.getPort(), DEFAULT_DATABASE),
+                QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME,
+                QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD));
 
         return new DevServicesResultBuildItem.RunningDevService(FEATURE,
                 null,
@@ -227,33 +254,4 @@ class EmbeddedPostgreSQLProcessor {
         resource.produce(NativeImageResourcePatternsBuildItem.builder().includeGlob("postgres-*.txz").build());
     }
 
-    private Map<String, String> createDatabases(EmbeddedPostgres pg, DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
-            String userName) {
-        pg.getDatabase(DEFAULT_USERNAME, DEFAULT_DATABASE);
-        return dataSourcesBuildTimeConfig.dataSources().entrySet().stream()
-                .filter(e -> !e.getKey().equals("<default>"))
-                .filter(ds -> Objects.equals(ds.getValue().dbKind().orElse(""), "postgresql"))
-                .map(Map.Entry::getKey)
-                .map(ds -> Map.entry(ds, createDatabase(pg.getPostgresDatabase(), ds, userName)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private String createDatabase(final DataSource dataSource, final String dbName, final String userName) {
-        Objects.requireNonNull(dbName);
-        Objects.requireNonNull(userName);
-        String sanitizedDbName = PostgreSQLSyntaxUtils.sanitizeDbName(dbName);
-        String createDbStatement = String.format(
-                "SELECT 'CREATE DATABASE %s OWNER %s' as createQuery WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '%s')",
-                sanitizedDbName, userName, sanitizedDbName);
-        try (Connection connection = dataSource.getConnection();
-                Statement stmt = connection.createStatement()) {
-            ResultSet result = stmt.executeQuery(createDbStatement);
-            if (result.next()) {
-                stmt.executeUpdate(result.getString("createQuery"));
-            }
-            return sanitizedDbName;
-        } catch (SQLException e) {
-            throw new IllegalStateException("Error creating DB " + dbName, e);
-        }
-    }
 }
