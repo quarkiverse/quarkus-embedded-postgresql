@@ -1,4 +1,4 @@
-package io.quarkiverse.embedded.postgresql.deployment;
+package io.quarkiverse.embedded.postgresql;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
