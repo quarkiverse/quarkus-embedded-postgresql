@@ -1,25 +1,10 @@
 package io.quarkiverse.embedded.postgresql.deployment;
 
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_DATABASE;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_JDBC_URL;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_PASSWORD;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_REACTIVE_URL;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.DEFAULT_USERNAME;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_JDBC_URL;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_PASSWORD;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_REACTIVE_URL;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_DATASOURCE_USERNAME;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_JDBC_URL;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_PASSWORD;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_REACTIVE_URL;
-import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.QUARKUS_NAMED_DATASOURCE_USERNAME;
 import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.getConfig;
 import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.getDBNames;
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -80,7 +65,8 @@ class EmbeddedPostgreSQLProcessor {
             BuildProducer<RunTimeConfigurationDefaultBuildItem> configProducer) {
         final int port = postgreSQLConfig.port().orElseGet(EmbeddedPostgreSQLConfigUtils::getDefaultPort);
         Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
-        recorder.startPostgres(shutdown, port, dbNames);
+        recorder.startPostgres(shutdown, port, dbNames, postgreSQLConfig.stringType(), postgreSQLConfig.startupWait(),
+                postgreSQLConfig.dataDir());
         getConfig(port, dbNames).forEach((k, v) -> configProducer.produce(new RunTimeConfigurationDefaultBuildItem(k, v)));
         return new ServiceStartBuildItem(FEATURE);
     }
@@ -105,7 +91,8 @@ class EmbeddedPostgreSQLProcessor {
             if (!shouldShutdownTheBroker) {
                 return devService.toBuildItem();
             }
-            shutdown();
+            EmbeddedPostgreSQLDBUtils.close(devService.getCloseable());
+            devService = null;
             cfg = null;
         }
 
@@ -138,8 +125,7 @@ class EmbeddedPostgreSQLProcessor {
             first = false;
             Runnable closeTask = () -> {
                 if (devService != null) {
-                    shutdown();
-
+                    EmbeddedPostgreSQLDBUtils.close(devService.getCloseable());
                     log.info("Embedded PostgreSQL shut down.");
                 }
                 first = true;
@@ -156,74 +142,21 @@ class EmbeddedPostgreSQLProcessor {
     private DevServicesResultBuildItem.RunningDevService startPostgres(DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             EmbeddedPostgreSQLConfig postgreSQLConfig) throws IOException {
 
-        EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
-        postgreSQLConfig.port().ifPresent(
-                port -> {
-                    log.infov("PG port will be set to {0}", port);
-                    builder.setPort(port);
-                });
-
-        postgreSQLConfig.startupWait().ifPresent(
-                timeout -> {
-                    log.infov("PG startup timeout set to {0}", timeout);
-                    builder.setPGStartupWait(Duration.ofMillis(timeout));
-                });
-
-        postgreSQLConfig.dataDir().ifPresent(path -> {
-            log.infov("Setting embedded postgresql data dir to {0}", path);
-            builder.setDataDirectory(path);
-            builder.setCleanDataDirectory(false);
-        });
-
-        builder.setConnectConfig("stringtype", postgreSQLConfig.stringType());
-
-        EmbeddedPostgres pg = builder.start();
-        log.infov(
-                "Embedded Postgres started at port \"{0,number,#}\" with database \"{1}\", user \"{2}\" and password \"{3}\"",
-                pg.getPort(), DEFAULT_DATABASE, DEFAULT_USERNAME, DEFAULT_PASSWORD);
-
         Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
 
-        Map<String, String> devServerConfigMap = new LinkedHashMap<>();
+        EmbeddedPostgres pg = EmbeddedPostgreSQLDBUtils.startPostgres(postgreSQLConfig.port(), dbNames,
+                postgreSQLConfig.stringType(), postgreSQLConfig.startupWait(), postgreSQLConfig.dataDir());
+        Map<String, String> devServerConfigMap = EmbeddedPostgreSQLConfigUtils.getConfig(pg.getPort(), dbNames);
         Config config = ConfigProvider.getConfig();
         for (String propertyName : config.getPropertyNames()) {
             if (propertyName.startsWith("quarkus.embedded.postgresql.")) {
                 devServerConfigMap.put(propertyName, config.getConfigValue(propertyName).getValue());
             }
         }
-        EmbeddedPostgreSQLDBUtils.createDatabases(pg, dbNames.values(), DEFAULT_USERNAME);
-        dbNames.forEach((k, v) -> devServerConfigMap.putAll(
-                Map.of(
-                        String.format(QUARKUS_NAMED_DATASOURCE_JDBC_URL, k),
-                        String.format(DEFAULT_JDBC_URL, pg.getPort(), v),
-                        String.format(QUARKUS_NAMED_DATASOURCE_REACTIVE_URL, k),
-                        String.format(DEFAULT_REACTIVE_URL, pg.getPort(), v),
-                        String.format(QUARKUS_NAMED_DATASOURCE_USERNAME, k), DEFAULT_USERNAME,
-                        String.format(QUARKUS_NAMED_DATASOURCE_PASSWORD, k), DEFAULT_PASSWORD)));
-
-        devServerConfigMap.putAll(Map.of(
-                QUARKUS_DATASOURCE_JDBC_URL, String.format(DEFAULT_JDBC_URL, pg.getPort(), DEFAULT_DATABASE),
-                QUARKUS_DATASOURCE_REACTIVE_URL, String.format(DEFAULT_REACTIVE_URL, pg.getPort(), DEFAULT_DATABASE),
-                QUARKUS_DATASOURCE_USERNAME, DEFAULT_USERNAME,
-                QUARKUS_DATASOURCE_PASSWORD, DEFAULT_PASSWORD));
-
         return new DevServicesResultBuildItem.RunningDevService(FEATURE,
                 null,
                 pg,
                 devServerConfigMap);
-    }
-
-    private void shutdown() {
-        if (devService != null) {
-            try {
-                log.info("Embedded Postgres shutting down...");
-                devService.close();
-            } catch (Throwable e) {
-                log.error("Failed to stop the Embedded Postgres server", e);
-            } finally {
-                devService = null;
-            }
-        }
     }
 
     @BuildStep

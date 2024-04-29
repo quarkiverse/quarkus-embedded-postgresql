@@ -11,14 +11,14 @@ import io.quarkus.datasource.runtime.DataSourcesBuildTimeConfig;
 
 public class EmbeddedPostgreSQLConfigUtils {
 
-    public static final String QUARKUS_DATASOURCE_REACTIVE_URL = "quarkus.datasource.reactive.url";
-    public static final String QUARKUS_DATASOURCE_JDBC_URL = "quarkus.datasource.jdbc.url";
-    public static final String QUARKUS_NAMED_DATASOURCE_REACTIVE_URL = "quarkus.datasource.\"%s\".reactive.url";
-    public static final String QUARKUS_NAMED_DATASOURCE_JDBC_URL = "quarkus.datasource.\"%s\".jdbc.url";
-    public static final String QUARKUS_DATASOURCE_USERNAME = "quarkus.datasource.username";
-    public static final String QUARKUS_DATASOURCE_PASSWORD = "quarkus.datasource.password";
-    public static final String QUARKUS_NAMED_DATASOURCE_USERNAME = "quarkus.datasource.\"%s\".username";
-    public static final String QUARKUS_NAMED_DATASOURCE_PASSWORD = "quarkus.datasource.\"%s\".password";
+    private static final String QUARKUS_DATASOURCE_REACTIVE_URL = "quarkus.datasource.reactive.url";
+    private static final String QUARKUS_DATASOURCE_JDBC_URL = "quarkus.datasource.jdbc.url";
+    private static final String QUARKUS_NAMED_DATASOURCE_REACTIVE_URL = "quarkus.datasource.\"%s\".reactive.url";
+    private static final String QUARKUS_NAMED_DATASOURCE_JDBC_URL = "quarkus.datasource.\"%s\".jdbc.url";
+    private static final String QUARKUS_DATASOURCE_USERNAME = "quarkus.datasource.username";
+    private static final String QUARKUS_DATASOURCE_PASSWORD = "quarkus.datasource.password";
+    private static final String QUARKUS_NAMED_DATASOURCE_USERNAME = "quarkus.datasource.\"%s\".username";
+    private static final String QUARKUS_NAMED_DATASOURCE_PASSWORD = "quarkus.datasource.\"%s\".password";
     public static final String DEFAULT_DATABASE = "postgres";
     public static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s?stringtype=unspecified";
     public static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s?stringtype=unspecified";
@@ -57,5 +57,8 @@ public class EmbeddedPostgreSQLConfigUtils {
                 .filter(ds -> ds.getValue().dbKind().filter(kind -> kind.equals("postgresql")).isPresent())
                 .map(Entry::getKey)
                 .collect(Collectors.toMap(e -> e, PostgreSQLSyntaxUtils::sanitizeDbName));
+    }
+
+    private EmbeddedPostgreSQLConfigUtils() {
     }
 }
