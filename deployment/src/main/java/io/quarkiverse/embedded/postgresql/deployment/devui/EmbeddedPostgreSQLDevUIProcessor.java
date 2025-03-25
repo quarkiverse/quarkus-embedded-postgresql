@@ -29,7 +29,7 @@ public class EmbeddedPostgreSQLDevUIProcessor {
         cardPageBuildItemBuildProducer.produce(card);
     }
 
-    @BuildStep(onlyIf = IsDevelopment.class)
+    @BuildStep
     JsonRPCProvidersBuildItem createJsonRPCService() {
         return new JsonRPCProvidersBuildItem(EmbeddedPostgreSQLJsonRpcService.class);
     }
