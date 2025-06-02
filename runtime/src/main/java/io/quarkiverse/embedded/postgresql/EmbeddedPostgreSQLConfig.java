@@ -34,6 +34,24 @@ public interface EmbeddedPostgreSQLConfig {
     Optional<Integer> port();
 
     /**
+     * Optionally configurable host (listen_addresses) for the PostgreSQL server.
+     * <p>
+     * If not set, {@code localhost} is used by default.
+     * Valid values include:
+     * <ul>
+     * <li>{@code localhost} — the loopback interfaces (127.0.0.1 and ::1)</li>
+     * <li>{@code 0.0.0.0} — all IPv4 interfaces</li>
+     * <li>{@code ::} — all IPv6 interfaces</li>
+     * <li>{@code *} — all available IP interfaces (both IPv4 and IPv6)</li>
+     * <li>A specific hostname or IP address, e.g. {@code db.mycompany.local} or {@code 192.168.1.100}</li>
+     * <li>Multiple values separated by commas, e.g. {@code localhost,192.168.1.100}, {@code 0.0.0.0,::}</li>
+     * </ul>
+     *
+     * @return an {@link Optional} containing the hostname(s) or IP address(es) to bind the PostgreSQL server.
+     */
+    Optional<String> listenAddress();
+
+    /**
      * Set string type
      *
      * @see <a href="https://jdbc.postgresql.org/documentation/use/">...</a>

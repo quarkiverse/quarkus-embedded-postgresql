@@ -10,10 +10,12 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 @Recorder
 public class EmbeddedPostgreSQLRecorder {
 
-    public void startPostgres(ShutdownContext shutdownContext, int port, Map<String, String> dbNames, String stringType,
-            Optional<Long> startUpWait, Optional<String> dataDir) {
-        EmbeddedPostgres pg = EmbeddedPostgreSQLDBUtils.startPostgres(Optional.of(port), dbNames, stringType, startUpWait,
-                dataDir);
+    public void startPostgres(ShutdownContext shutdownContext, int port, Optional<String> listenAddress,
+            Map<String, String> dbNames,
+            String stringType, Optional<Long> startUpWait, Optional<String> dataDir) {
+        EmbeddedPostgres pg = EmbeddedPostgreSQLDBUtils.startPostgres(Optional.of(port), listenAddress, dbNames,
+                stringType,
+                startUpWait, dataDir);
         shutdownContext.addShutdownTask(() -> EmbeddedPostgreSQLDBUtils.close(pg));
     }
 }

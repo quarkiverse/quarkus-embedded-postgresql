@@ -64,8 +64,10 @@ class EmbeddedPostgreSQLProcessor {
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig, EmbeddedPostgreSQLConfig postgreSQLConfig,
             BuildProducer<RunTimeConfigurationDefaultBuildItem> configProducer) {
         final int port = postgreSQLConfig.port().orElseGet(EmbeddedPostgreSQLConfigUtils::getDefaultPort);
+
         Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
-        recorder.startPostgres(shutdown, port, dbNames, postgreSQLConfig.stringType(), postgreSQLConfig.startupWait(),
+        recorder.startPostgres(shutdown, port, postgreSQLConfig.listenAddress(), dbNames, postgreSQLConfig.stringType(),
+                postgreSQLConfig.startupWait(),
                 postgreSQLConfig.dataDir());
         getConfig(port, dbNames).forEach((k, v) -> configProducer.produce(new RunTimeConfigurationDefaultBuildItem(k, v)));
         return new ServiceStartBuildItem(FEATURE);
@@ -144,9 +146,10 @@ class EmbeddedPostgreSQLProcessor {
 
         Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
 
-        EmbeddedPostgres pg = EmbeddedPostgreSQLDBUtils.startPostgres(postgreSQLConfig.port(), dbNames,
-                postgreSQLConfig.stringType(), postgreSQLConfig.startupWait(), postgreSQLConfig.dataDir());
-        Map<String, String> devServerConfigMap = EmbeddedPostgreSQLConfigUtils.getConfig(pg.getPort(), dbNames);
+        EmbeddedPostgres pg = EmbeddedPostgreSQLDBUtils.startPostgres(postgreSQLConfig.port(), postgreSQLConfig.listenAddress(),
+                dbNames, postgreSQLConfig.stringType(), postgreSQLConfig.startupWait(), postgreSQLConfig.dataDir());
+
+        Map<String, String> devServerConfigMap = getConfig(pg.getPort(), dbNames);
         Config config = ConfigProvider.getConfig();
         for (String propertyName : config.getPropertyNames()) {
             if (propertyName.startsWith("quarkus.embedded.postgresql.")) {
