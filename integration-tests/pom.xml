@@ -71,18 +71,141 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <executions>
           <execution>
-            <id>integration-test</id>
+            <id>integration-test-dev</id>
+            <phase>integration-test</phase>
             <goals>
               <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>prod</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-1</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-2</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test2</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-3</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test3</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-4</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test4</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-5</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test5</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-6</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test6</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>integration-test-7</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <quarkus.profile>test7</quarkus.profile>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/*PostgreSQLFilesystemStorageTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>verify</id>
+            <phase>verify</phase>
+            <goals>
               <goal>verify</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <includes>
-            <include>**/*PostgreSQLFilesystemStorageTest</include>
-          </includes>
-        </configuration>
       </plugin>
 
       <plugin>

@@ -27,6 +27,7 @@ You can now inject in your code a DataSource object (if you are JDBC friend) or 
 |----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 | `quarkus.embedded.postgresql.data.dir` | You can optionally persist information into file system by setting the desired path as value of property                                           |  
 | `quarkus.embedded.postgresql.port`     | You can optinally configure the postgresql server port by using this property. If no value is confirured a random available port will be selected. |
+| `quarkus.embedded.postgresql.listen-address`     | You can optionally configure the host(s) (listen_addresses) for the PostgreSQL server; if not set, localhost is used. Valid values include localhost, 0.0.0.0, ::, *, a specific hostname or IP (e.g. db.mycompany.local, 192.168.1.100), or multiple comma-separated addresses. |
 
 ### Multiple Datasources
 
