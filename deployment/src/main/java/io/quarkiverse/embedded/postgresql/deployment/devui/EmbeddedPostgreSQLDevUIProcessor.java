@@ -15,7 +15,8 @@ import io.quarkus.devui.spi.page.PageBuilder;
 public class EmbeddedPostgreSQLDevUIProcessor {
 
     @BuildStep(onlyIf = IsDevelopment.class)
-    void createVersion(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer) {
+    void createVersion(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer,
+            PgAdminConfigBuildItem pgAdminConfigBuildItem) {
         final CardPageBuildItem card = new CardPageBuildItem();
 
         final PageBuilder portPage = Page.externalPageBuilder("Port")
@@ -24,6 +25,12 @@ public class EmbeddedPostgreSQLDevUIProcessor {
                 .doNotEmbed()
                 .dynamicLabelJsonRPCMethodName("getDatasourcePort");
         card.addPage(portPage);
+
+        final PageBuilder pgAdminPage = Page.externalPageBuilder("Postgre Admin UI")
+                .icon("font-awesome-solid:database")
+                .url("http://" + pgAdminConfigBuildItem.getPgAdminUrl())
+                .doNotEmbed();
+        card.addPage(pgAdminPage);
 
         card.setCustomCard("qwc-embedded-postgresql-card.js");
         cardPageBuildItemBuildProducer.produce(card);
