@@ -4,19 +4,19 @@ import io.quarkus.builder.item.SimpleBuildItem;
 
 public final class PgAdminConfigBuildItem extends SimpleBuildItem {
 
-    private final String pgAdminUrl;
-    private final String pgAdminPort;
+    private final String pgAdminHost;
+    private final int pgAdminPort;
 
-    public PgAdminConfigBuildItem(String pgAdminUrl, String pgAdminPort) {
-        this.pgAdminUrl = pgAdminUrl;
+    public PgAdminConfigBuildItem(String pgAdminHost, int pgAdminPort) {
+        this.pgAdminHost = pgAdminHost;
         this.pgAdminPort = pgAdminPort;
     }
 
     public String getPgAdminUrl() {
-        return pgAdminUrl;
+        return pgAdminHost + ":" + pgAdminPort;
     }
 
-    public String getPgAdminPort() {
+    public int getPgAdminPort() {
         return pgAdminPort;
     }
 }

@@ -5,7 +5,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.Collections;
 
 import jakarta.json.Json;
@@ -13,17 +12,20 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 
 import org.jboss.logging.Logger;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
 
 import io.quarkiverse.embedded.postgresql.deployment.EmbeddedPostgreSQLDevServicesConfigBuildItem;
+import io.quarkiverse.embedded.postgresql.devui.PgAdminUiProxy;
 import io.quarkus.deployment.IsDevelopment;
+import io.quarkus.deployment.IsLocalDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
+import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
+import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
+import io.quarkus.vertx.http.deployment.RouteBuildItem;
 
 public class PgAdminProcessor {
 
@@ -33,20 +35,42 @@ public class PgAdminProcessor {
 
     private final static String PGPASS_TEMPLATE = "host.docker.internal:%s:postgres:postgres:postgres";
 
-    private final static String DOCKER_IMAGE_NAME = "dpage/pgadmin4:9.4.0";
-
     private static final Logger log = Logger.getLogger(PgAdminProcessor.class);
+
+    @BuildStep(onlyIf = IsLocalDevelopment.class)
+    @Record(ExecutionTime.RUNTIME_INIT)
+    void registerProxy(
+            PgAdminUiProxy recorder,
+            BuildProducer<RouteBuildItem> routes,
+            PgAminUiConfig config,
+            PgAdminConfigBuildItem pgAdminConfigBuildItem,
+            NonApplicationRootPathBuildItem frameworkRoot,
+            CoreVertxBuildItem coreVertx) {
+        if (!config.enabled()) {
+            return;
+        }
+        int port = pgAdminConfigBuildItem.getPgAdminPort();
+
+        routes.produce(frameworkRoot.routeBuilder()
+                .management()
+                .route("pgadmin*")
+                .handler(recorder.handler(coreVertx.getVertx(), port))
+                .build());
+
+        routes.produce(RouteBuildItem.builder()
+                .route("/pgadmin*")
+                .handler(recorder.handler(coreVertx.getVertx(), port))
+                .build());
+    }
 
     @BuildStep(onlyIf = IsDevelopment.class)
     DevServicesResultBuildItem startPgAdminContainer(LaunchModeBuildItem launchMode,
             EmbeddedPostgreSQLDevServicesConfigBuildItem pgConfig,
             BuildProducer<PgAdminConfigBuildItem> pgAdminConfigProducer) {
-        if (!launchMode.getLaunchMode().isDevOrTest()) {
+        if (launchMode.isNotLocalDevModeType()) {
+            log.info("EXITING: PgAdmin is only available in local development mode.");
             return null;
         }
-
-        log.info("Starting PgAdmin container...");
-
         String serversJson = generateServersJson(
                 Integer.parseInt(pgConfig.getConfig().get(QUARKUS_EMBEDDED_POSTGRESQL_PORT)));
         String pgPass = generatePgPass(
@@ -61,30 +85,7 @@ public class PgAdminProcessor {
             throw new UncheckedIOException("Failed to write servers.json, pgpass or config_local.py", e);
         }
 
-        DockerImageName imageName = DockerImageName.parse(DOCKER_IMAGE_NAME);
-
-        GenericContainer<?> container = new GenericContainer<>(imageName)
-                .withExposedPorts(80)
-                .withEnv("PGADMIN_DEFAULT_EMAIL", "admin@admin.com")
-                .withEnv("PGADMIN_DEFAULT_PASSWORD", "admin")
-                .withEnv("PGADMIN_CONFIG_SERVER_MODE", "False")
-                .withEnv("PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED", "False")
-                .withEnv("PGADMIN_REPLACE_SERVERS_ON_STARTUP", "True")
-                .withFileSystemBind(
-                        serversJsonPath.toAbsolutePath().toString(),
-                        "/pgadmin4/servers.json",
-                        BindMode.READ_ONLY)
-                .withFileSystemBind(
-                        pgpassPath.toAbsolutePath().toString(),
-                        "/pgpass",
-                        BindMode.READ_ONLY)
-                .withLogConsumer(outputFrame -> {
-                    log.info("[PgAdmin4] " + outputFrame.getUtf8String());
-                })
-                .waitingFor(Wait.forHttp("/")
-                        .forStatusCode(200)
-                        .withStartupTimeout(Duration.ofMinutes(2)));
-
+        PgAdminContainer container = new PgAdminContainer(serversJsonPath, pgpassPath);
         container.start();
 
         var config = Collections.singletonMap(
@@ -92,8 +93,7 @@ public class PgAdminProcessor {
                 container.getHost() + ":" + container.getMappedPort(80));
 
         pgAdminConfigProducer.produce(new PgAdminConfigBuildItem(
-                config.get("quarkus.pgadmin4.url"),
-                String.valueOf(container.getMappedPort(80))));
+                container.getHost(), container.getMappedPort(80)));
 
         return new DevServicesResultBuildItem.RunningDevService(CONTAINER_ID, container.getContainerId(),
                 () -> {
