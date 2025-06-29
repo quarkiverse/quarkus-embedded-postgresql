@@ -4,10 +4,13 @@ import io.quarkiverse.embedded.postgresql.devui.EmbeddedPostgreSQLJsonRpcService
 import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.builditem.LaunchModeBuildItem;
 import io.quarkus.devui.spi.JsonRPCProvidersBuildItem;
 import io.quarkus.devui.spi.page.CardPageBuildItem;
 import io.quarkus.devui.spi.page.Page;
 import io.quarkus.devui.spi.page.PageBuilder;
+import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
+import io.quarkus.vertx.http.runtime.management.ManagementInterfaceBuildTimeConfig;
 
 /**
  * Dev UI card for displaying important details such EmbeddedPostgreSQL embedded UI.
@@ -15,8 +18,13 @@ import io.quarkus.devui.spi.page.PageBuilder;
 public class EmbeddedPostgreSQLDevUIProcessor {
 
     @BuildStep(onlyIf = IsDevelopment.class)
-    void createVersion(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer) {
+    void createVersion(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer,
+            NonApplicationRootPathBuildItem nonApp,
+            ManagementInterfaceBuildTimeConfig mgmtConfig,
+            LaunchModeBuildItem lm) {
         final CardPageBuildItem card = new CardPageBuildItem();
+
+        String managementBase = nonApp.resolveManagementPath("pgadmin", mgmtConfig, lm);
 
         final PageBuilder portPage = Page.externalPageBuilder("Port")
                 .icon("font-awesome-solid:plug")
@@ -24,6 +32,11 @@ public class EmbeddedPostgreSQLDevUIProcessor {
                 .doNotEmbed()
                 .dynamicLabelJsonRPCMethodName("getDatasourcePort");
         card.addPage(portPage);
+
+        final PageBuilder pgAdminPage = Page.externalPageBuilder("Postgre Admin UI")
+                .icon("font-awesome-solid:database")
+                .url(managementBase);
+        card.addPage(pgAdminPage);
 
         card.setCustomCard("qwc-embedded-postgresql-card.js");
         cardPageBuildItemBuildProducer.produce(card);

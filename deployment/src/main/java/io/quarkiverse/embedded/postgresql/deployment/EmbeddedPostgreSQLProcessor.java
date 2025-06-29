@@ -156,6 +156,7 @@ class EmbeddedPostgreSQLProcessor {
                 devServerConfigMap.put(propertyName, config.getConfigValue(propertyName).getValue());
             }
         }
+        devServerConfigMap.put("quarkus.embedded.postgresql.port", String.valueOf(pg.getPort()));
         return new DevServicesResultBuildItem.RunningDevService(FEATURE,
                 null,
                 pg,
