@@ -10,11 +10,15 @@ import org.testcontainers.utility.DockerImageName;
 
 public final class PgAdminContainer extends GenericContainer<PgAdminContainer> {
 
-    private static final String DOCKER_IMAGE_NAME = "dpage/pgadmin4:9.4.0";
+    private static final String DEV_SERVICE_LABEL = "quarkus-dev-service-mailpit";
+    private static final String DEV_SERVICE_NAME = "pgAdminUI";
 
-    public PgAdminContainer(Path serversJsonPath, Path pgpassPath) {
-        super(DockerImageName.parse(DOCKER_IMAGE_NAME));
+    public PgAdminContainer(String dockerImageName, Path serversJsonPath, Path pgpassPath) {
+        super(DockerImageName.parse(dockerImageName));
+        super.withLabel(DEV_SERVICE_LABEL, DEV_SERVICE_NAME);
+
         withExposedPorts(80);
+
         withEnv("PGADMIN_DEFAULT_EMAIL", "admin@admin.com");
         withEnv("PGADMIN_DEFAULT_PASSWORD", "admin");
         withEnv("PGADMIN_CONFIG_SERVER_MODE", "False");

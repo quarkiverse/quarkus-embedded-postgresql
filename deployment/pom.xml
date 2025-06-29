@@ -46,10 +46,6 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-vertx-http-dev-ui-spi</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.quarkiverse.embedded.postgresql</groupId>
 			<artifactId>quarkus-embedded-postgresql</artifactId>
 			<version>${project.version}</version>

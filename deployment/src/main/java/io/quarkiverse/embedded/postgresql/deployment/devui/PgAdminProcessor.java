@@ -54,27 +54,30 @@ public class PgAdminProcessor {
         routes.produce(frameworkRoot.routeBuilder()
                 .management()
                 .route("pgadmin*")
+                .displayOnNotFoundPage("pgAdmin UI")
                 .handler(recorder.handler(coreVertx.getVertx(), port))
                 .build());
 
         routes.produce(RouteBuildItem.builder()
                 .route("/pgadmin*")
+                .displayOnNotFoundPage("pgAdmin UI")
                 .handler(recorder.handler(coreVertx.getVertx(), port))
                 .build());
     }
 
     @BuildStep(onlyIf = IsDevelopment.class)
     DevServicesResultBuildItem startPgAdminContainer(LaunchModeBuildItem launchMode,
-            EmbeddedPostgreSQLDevServicesConfigBuildItem pgConfig,
-            BuildProducer<PgAdminConfigBuildItem> pgAdminConfigProducer) {
+            EmbeddedPostgreSQLDevServicesConfigBuildItem pgBuildConfig,
+            BuildProducer<PgAdminConfigBuildItem> pgAdminConfigProducer,
+            PgAminUiConfig pgAppConfig) {
         if (launchMode.isNotLocalDevModeType()) {
             log.info("EXITING: PgAdmin is only available in local development mode.");
             return null;
         }
         String serversJson = generateServersJson(
-                Integer.parseInt(pgConfig.getConfig().get(QUARKUS_EMBEDDED_POSTGRESQL_PORT)));
+                Integer.parseInt(pgBuildConfig.getConfig().get(QUARKUS_EMBEDDED_POSTGRESQL_PORT)));
         String pgPass = generatePgPass(
-                Integer.parseInt(pgConfig.getConfig().get(QUARKUS_EMBEDDED_POSTGRESQL_PORT)));
+                Integer.parseInt(pgBuildConfig.getConfig().get(QUARKUS_EMBEDDED_POSTGRESQL_PORT)));
 
         Path serversJsonPath;
         Path pgpassPath;
@@ -85,7 +88,7 @@ public class PgAdminProcessor {
             throw new UncheckedIOException("Failed to write servers.json, pgpass or config_local.py", e);
         }
 
-        PgAdminContainer container = new PgAdminContainer(serversJsonPath, pgpassPath);
+        PgAdminContainer container = new PgAdminContainer(pgAppConfig.imageName(), serversJsonPath, pgpassPath);
         container.start();
 
         var config = Collections.singletonMap(
