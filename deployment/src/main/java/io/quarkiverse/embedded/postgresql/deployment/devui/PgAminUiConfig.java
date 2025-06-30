@@ -9,7 +9,7 @@ import io.smallrye.config.WithDefault;
 @ConfigRoot(phase = ConfigPhase.BUILD_TIME)
 public interface PgAminUiConfig {
 
-    String DEFAULT_IMAGE = "dpage/pgadmin4:9.4.0";
+    String DEFAULT_IMAGE = "dpage/pgadmin4:9.5.0";
 
     /**
      * Enable or disable the PgAdmin UI.
