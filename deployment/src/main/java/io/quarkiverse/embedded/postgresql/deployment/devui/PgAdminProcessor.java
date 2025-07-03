@@ -17,16 +17,20 @@ import io.quarkiverse.embedded.postgresql.deployment.EmbeddedPostgreSQLDevServic
 import io.quarkiverse.embedded.postgresql.devui.PgAdminUiProxy;
 import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.IsLocalDevelopment;
+import io.quarkus.deployment.IsNormal;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.BuildSteps;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
+import io.quarkus.deployment.dev.devservices.DevServicesConfig;
 import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
 import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
 import io.quarkus.vertx.http.deployment.RouteBuildItem;
 
+@BuildSteps(onlyIfNot = IsNormal.class, onlyIf = DevServicesConfig.Enabled.class)
 public class PgAdminProcessor {
 
     private final static String CONTAINER_ID = "quarkus-embedded-postgresql-pgadmin";

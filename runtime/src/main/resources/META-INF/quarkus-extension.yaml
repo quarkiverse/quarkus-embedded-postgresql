@@ -9,6 +9,7 @@ metadata:
     - "data"
   config:
     - "quarkus.embedded.postgresql."
+    - "quarkus.pgadmin-ui."
   status: "preview"
   guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-embedded-postgresql/dev/index.html"
   icon-url: "https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg"

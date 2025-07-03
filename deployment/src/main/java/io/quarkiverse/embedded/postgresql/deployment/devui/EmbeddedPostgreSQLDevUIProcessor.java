@@ -33,9 +33,10 @@ public class EmbeddedPostgreSQLDevUIProcessor {
                 .dynamicLabelJsonRPCMethodName("getDatasourcePort");
         card.addPage(portPage);
 
-        final PageBuilder pgAdminPage = Page.externalPageBuilder("Postgre Admin UI")
+        final PageBuilder pgAdminPage = Page.externalPageBuilder("pgAdmin UI")
                 .icon("font-awesome-solid:database")
-                .url(managementBase);
+                .url(managementBase, managementBase)
+                .isHtmlContent();
         card.addPage(pgAdminPage);
 
         card.setCustomCard("qwc-embedded-postgresql-card.js");
