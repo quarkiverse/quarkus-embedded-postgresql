@@ -78,6 +78,11 @@ public class PgAdminProcessor {
             log.info("EXITING: PgAdmin is only available in local development mode.");
             return null;
         }
+        if (!pgAppConfig.enabled()) {
+            log.info("EXITING: PgAdmin is disabled in the configuration.");
+            return null;
+        }
+
         String serversJson = generateServersJson(
                 Integer.parseInt(pgBuildConfig.getConfig().get(QUARKUS_EMBEDDED_POSTGRESQL_PORT)));
         String pgPass = generatePgPass(

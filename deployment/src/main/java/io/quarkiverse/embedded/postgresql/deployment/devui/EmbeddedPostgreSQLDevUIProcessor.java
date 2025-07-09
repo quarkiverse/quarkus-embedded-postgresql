@@ -21,7 +21,8 @@ public class EmbeddedPostgreSQLDevUIProcessor {
     void createVersion(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer,
             NonApplicationRootPathBuildItem nonApp,
             ManagementInterfaceBuildTimeConfig mgmtConfig,
-            LaunchModeBuildItem lm) {
+            LaunchModeBuildItem lm,
+            PgAminUiConfig pgAppConfig) {
         final CardPageBuildItem card = new CardPageBuildItem();
 
         String managementBase = nonApp.resolveManagementPath("pgadmin", mgmtConfig, lm);
@@ -32,12 +33,13 @@ public class EmbeddedPostgreSQLDevUIProcessor {
                 .doNotEmbed()
                 .dynamicLabelJsonRPCMethodName("getDatasourcePort");
         card.addPage(portPage);
-
-        final PageBuilder pgAdminPage = Page.externalPageBuilder("pgAdmin UI")
-                .icon("font-awesome-solid:database")
-                .url(managementBase, managementBase)
-                .isHtmlContent();
-        card.addPage(pgAdminPage);
+        if (pgAppConfig.enabled()) {
+            final PageBuilder pgAdminPage = Page.externalPageBuilder("pgAdmin UI")
+                    .icon("font-awesome-solid:database")
+                    .url(managementBase, managementBase)
+                    .isHtmlContent();
+            card.addPage(pgAdminPage);
+        }
 
         card.setCustomCard("qwc-embedded-postgresql-card.js");
         cardPageBuildItemBuildProducer.produce(card);
