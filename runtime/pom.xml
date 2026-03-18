@@ -15,7 +15,7 @@
       <dependency>
         <groupId>io.zonky.test.postgres</groupId>
         <artifactId>embedded-postgres-binaries-bom</artifactId>
-        <version>18.1.0</version>
+        <version>18.3.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -62,6 +62,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-jaxp</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-devui</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
