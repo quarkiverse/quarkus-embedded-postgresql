@@ -15,25 +15,27 @@ import org.jboss.logging.Logger;
 
 import io.quarkiverse.embedded.postgresql.deployment.EmbeddedPostgreSQLDevServicesConfigBuildItem;
 import io.quarkiverse.embedded.postgresql.devui.PgAdminUiProxy;
+import io.quarkus.core.deployment.service.ServiceRegistrar;
 import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.IsLocalDevelopment;
-import io.quarkus.deployment.IsNormal;
+import io.quarkus.deployment.IsProduction;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.BuildSteps;
-import io.quarkus.deployment.annotations.ExecutionTime;
-import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
 import io.quarkus.deployment.dev.devservices.DevServicesConfig;
-import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
 import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
 import io.quarkus.vertx.http.deployment.RouteBuildItem;
+import io.quarkus.vertx.http.runtime.RouteHandler;
+import io.vertx.core.Vertx;
 
-@BuildSteps(onlyIfNot = IsNormal.class, onlyIf = DevServicesConfig.Enabled.class)
+@BuildSteps(onlyIfNot = IsProduction.class, onlyIf = DevServicesConfig.Enabled.class)
 public class PgAdminProcessor {
 
     private final static String CONTAINER_ID = "quarkus-embedded-postgresql-pgadmin";
+
+    private final static String PROXY_SERVICE_NAME = "io.quarkiverse.embedded-postgresql.pgadmin-proxy";
 
     private final static String QUARKUS_EMBEDDED_POSTGRESQL_PORT = "quarkus.embedded.postgresql.port";
 
@@ -42,30 +44,37 @@ public class PgAdminProcessor {
     private static final Logger log = Logger.getLogger(PgAdminProcessor.class);
 
     @BuildStep(onlyIf = IsLocalDevelopment.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
     void registerProxy(
-            PgAdminUiProxy recorder,
+            ServiceRegistrar serviceRegistrar,
             BuildProducer<RouteBuildItem> routes,
             PgAminUiConfig config,
             PgAdminConfigBuildItem pgAdminConfigBuildItem,
-            NonApplicationRootPathBuildItem frameworkRoot,
-            CoreVertxBuildItem coreVertx) {
+            NonApplicationRootPathBuildItem frameworkRoot) {
         if (!config.enabled()) {
             return;
         }
         int port = pgAdminConfigBuildItem.getPgAdminPort();
 
+        serviceRegistrar.forService(RouteHandler.class, PROXY_SERVICE_NAME)
+                .require(Vertx.class)
+                .onStart((ctx, vertx) -> PgAdminUiProxy.createHandler(vertx, port));
+
+        // RouteBuildItem still only accepts a recorder-style handler proxy; Quarkus 4.0 offers no
+        // non-deprecated alternative yet (core extensions use this same bridge).
+        @SuppressWarnings("deprecation")
+        RouteHandler handler = serviceRegistrar.getRecorderProxy(RouteHandler.class, PROXY_SERVICE_NAME);
+
         routes.produce(frameworkRoot.routeBuilder()
                 .management()
                 .route("pgadmin*")
                 .displayOnNotFoundPage("pgAdmin UI")
-                .handler(recorder.handler(coreVertx.getVertx(), port))
+                .handler(handler)
                 .build());
 
         routes.produce(RouteBuildItem.builder()
                 .route("/pgadmin*")
                 .displayOnNotFoundPage("pgAdmin UI")
-                .handler(recorder.handler(coreVertx.getVertx(), port))
+                .handler(handler)
                 .build());
     }
 
@@ -107,17 +116,13 @@ public class PgAdminProcessor {
         pgAdminConfigProducer.produce(new PgAdminConfigBuildItem(
                 container.getHost(), container.getMappedPort(80)));
 
-        return new DevServicesResultBuildItem.RunningDevService(CONTAINER_ID, container.getContainerId(),
-                () -> {
-                    log.info("Stopping PgAdmin container...");
-                    try {
-                        container.stop();
-                        log.info("PgAdmin container stopped successfully.");
-                    } catch (Exception e) {
-                        log.error("Failed to stop PgAdmin container: " + e.getMessage(), e);
-                    }
-                }, config)
-                .toBuildItem();
+        // Quarkus 3's RunningDevService.toBuildItem() produced exactly this and discarded the closeable,
+        // so the container lifecycle is unchanged (Testcontainers cleans it up when the JVM exits).
+        return DevServicesResultBuildItem.discovered()
+                .feature(CONTAINER_ID)
+                .containerId(container.getContainerId())
+                .config(config)
+                .build();
     }
 
     public String generateServersJson(int port) {

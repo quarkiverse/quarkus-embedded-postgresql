@@ -20,7 +20,8 @@ public class EmbeddedPostgreSQLConfigUtils {
     private static final String QUARKUS_NAMED_DATASOURCE_USERNAME = "quarkus.datasource.\"%s\".username";
     private static final String QUARKUS_NAMED_DATASOURCE_PASSWORD = "quarkus.datasource.\"%s\".password";
     public static final String DEFAULT_DATABASE = "postgres";
-    public static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s?stringtype=unspecified";
+    // stringtype is a pgJDBC-only option; Vert.x 5 forwards unknown URI parameters to the server, which rejects it
+    public static final String DEFAULT_REACTIVE_URL = "postgresql://localhost:%d/%s";
     public static final String DEFAULT_JDBC_URL = "jdbc:postgresql://localhost:%d/%s?stringtype=unspecified";
     public static final String DEFAULT_USERNAME = "postgres";
     public static final String DEFAULT_PASSWORD = "postgres";

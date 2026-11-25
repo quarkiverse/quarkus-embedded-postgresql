@@ -19,7 +19,7 @@ Include this dependency in your pom
    </dependency>
 ```
 
-You can now inject in your code a DataSource object (if you are JDBC friend) or a PgPool reference (if you prefer reactive) without adding any further property.
+You can now inject in your code a DataSource object (if you are JDBC friend) or an `io.vertx.mutiny.sqlclient.Pool` reference (if you prefer reactive) without adding any further property.
 
 ### Configuration properties
 
@@ -36,6 +36,15 @@ see the [datasources guide](https://quarkus.io/guides/datasource#multiple-dataso
 
 The extension uses the configuration of each named datasource matching the `db-kind` property to automatically create the databases on the embedded PostgreSQL for
 each defined datasource and inject the proper configuration intro the application, such as the URL for the datasource.
+
+## Compatibility
+
+| Embedded PostgreSQL version | Quarkus version |
+| --------------------------- | --------------- |
+| 0.8.x                       | 3.39.2+         |
+| 1.x                         | 4.0.1+          |
+
+1.x targets Quarkus 4 and requires JDK 21. If you are still on Quarkus 3, stay on 0.8.x, which is maintained from the `quarkus3` branch.
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)

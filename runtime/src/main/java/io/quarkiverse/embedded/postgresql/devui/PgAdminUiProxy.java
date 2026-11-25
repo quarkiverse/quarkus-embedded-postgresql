@@ -1,18 +1,16 @@
 package io.quarkiverse.embedded.postgresql.devui;
 
-import java.util.function.Supplier;
-
 import org.jboss.logging.Logger;
 
-import io.quarkus.runtime.annotations.Recorder;
-import io.vertx.core.Handler;
+import io.quarkus.vertx.http.runtime.RouteHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
 
-@Recorder
-public class PgAdminUiProxy {
+/**
+ * Builds the route handler that proxies {@code /q/pgadmin} and {@code /pgadmin} to the pgAdmin dev service container.
+ */
+public final class PgAdminUiProxy {
 
     private static final Logger log = Logger.getLogger(PgAdminUiProxy.class);
 
@@ -20,8 +18,11 @@ public class PgAdminUiProxy {
 
     private static final String RESOURCES = "/pgadmin";
 
-    public Handler<RoutingContext> handler(Supplier<Vertx> vertx, int port) {
-        final var client = WebClient.create(vertx.get());
+    private PgAdminUiProxy() {
+    }
+
+    public static RouteHandler createHandler(Vertx vertx, int port) {
+        final var client = WebClient.create(vertx);
 
         return event -> {
             String suffix;

@@ -3,17 +3,19 @@ package io.quarkiverse.embedded.postgresql.it;
 import java.util.Collection;
 import java.util.Optional;
 
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Reserve;
 
-import io.quarkus.arc.DefaultBean;
 import io.smallrye.mutiny.Multi;
-import io.vertx.mutiny.pgclient.PgPool;
+import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 @Dependent
-@DefaultBean
+@Reserve
+@Priority(0)
 public class ReactiveEmbeddedRepository implements EmbeddedRepository {
 
     private static final String FIND_ALL = "SELECT id, name FROM inmemory_postgresql ORDER BY name ASC";
@@ -22,9 +24,9 @@ public class ReactiveEmbeddedRepository implements EmbeddedRepository {
     private static final String SAVE_OR_UPDATE = "INSERT INTO inmemory_postgresql (id, name) VALUES ($1, $2)  ON CONFLICT(id) DO UPDATE SET name = $2 returning (xmax = 0) AS inserted";
     private static final String DELETE = "DELETE FROM inmemory_postgresql WHERE id = $1";
 
-    private final PgPool client;
+    private final Pool client;
 
-    public ReactiveEmbeddedRepository(PgPool client) {
+    public ReactiveEmbeddedRepository(Pool client) {
         this.client = client;
     }
 

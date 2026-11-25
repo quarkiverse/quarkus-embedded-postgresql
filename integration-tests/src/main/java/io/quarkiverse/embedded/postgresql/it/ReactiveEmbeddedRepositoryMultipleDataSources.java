@@ -4,13 +4,13 @@ import jakarta.enterprise.context.Dependent;
 
 import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.reactive.datasource.ReactiveDataSource;
-import io.vertx.mutiny.pgclient.PgPool;
+import io.vertx.mutiny.sqlclient.Pool;
 
 @Dependent
 @IfBuildProfile("multiple-datasources")
 public class ReactiveEmbeddedRepositoryMultipleDataSources extends ReactiveEmbeddedRepository {
 
-    public ReactiveEmbeddedRepositoryMultipleDataSources(@ReactiveDataSource("database-2") PgPool client) {
+    public ReactiveEmbeddedRepositoryMultipleDataSources(@ReactiveDataSource("database-2") Pool client) {
         super(client);
     }
 }
