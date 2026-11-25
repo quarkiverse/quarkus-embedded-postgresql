@@ -1,5 +1,7 @@
 package io.quarkiverse.embedded.postgresql;
 
+import java.util.Map;
+
 import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
 import io.agroal.api.exceptionsorter.PostgreSQLExceptionSorter;
 import io.quarkus.agroal.runtime.AgroalConnectionConfigurer;
@@ -10,7 +12,8 @@ import io.quarkus.datasource.common.runtime.DatabaseKind;
 public class EmbeddedPostgreSQLConnectionConfigurer implements AgroalConnectionConfigurer {
 
     @Override
-    public void disableSslSupport(String databaseKind, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
+    public void disableSslSupport(String databaseKind, AgroalDataSourceConfigurationSupplier dataSourceConfiguration,
+            Map<String, String> additionalJdbcProperties) {
         dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().jdbcProperty("sslmode",
                 "disable");
     }

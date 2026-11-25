@@ -2,7 +2,6 @@ package io.quarkiverse.embedded.postgresql.deployment;
 
 import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.getConfig;
 import static io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils.getDBNames;
-import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
 import java.io.IOException;
 import java.util.Map;
@@ -16,11 +15,13 @@ import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfig;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConfigUtils;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLConnectionConfigurer;
 import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLDBUtils;
-import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLRecorder;
+import io.quarkiverse.embedded.postgresql.EmbeddedPostgreSQLService;
 import io.quarkus.agroal.spi.JdbcDriverBuildItem;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.processor.BuiltinScope;
 import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
+import io.quarkus.core.Phase;
+import io.quarkus.core.deployment.service.ServiceRegistrar;
 import io.quarkus.datasource.common.runtime.DatabaseKind;
 import io.quarkus.datasource.runtime.DataSourcesBuildTimeConfig;
 import io.quarkus.deployment.Capabilities;
@@ -28,19 +29,16 @@ import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
-import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
-import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourcePatternsBuildItem;
 import io.quarkus.deployment.console.ConsoleInstalledBuildItem;
 import io.quarkus.deployment.console.StartupLogCompressor;
 import io.quarkus.deployment.logging.LoggingSetupBuildItem;
-import io.quarkus.deployment.pkg.steps.NativeOrNativeSourcesBuild;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 
 class EmbeddedPostgreSQLProcessor {
@@ -48,6 +46,8 @@ class EmbeddedPostgreSQLProcessor {
     private static final Logger log = Logger.getLogger(EmbeddedPostgreSQLProcessor.class);
 
     private static final String FEATURE = "embedded-postgres";
+
+    private static final String SERVICE_NAME = "io.quarkiverse.embedded-postgresql.server";
 
     static volatile RunningPostgres devService;
     static volatile EmbeddedPostgreSQLConfig cfg;
@@ -58,17 +58,30 @@ class EmbeddedPostgreSQLProcessor {
         return new FeatureBuildItem(FEATURE);
     }
 
+    /**
+     * Starts the embedded server at runtime (prod/native). Producing {@link RunTimeConfigurationDefaultBuildItem}
+     * from this step keeps the datasource and Flyway recorders downstream of this service in the startup graph,
+     * so the server is up before they connect.
+     */
     @BuildStep(onlyIfNot = IsDevelopment.class)
-    @Record(RUNTIME_INIT)
-    ServiceStartBuildItem startService(EmbeddedPostgreSQLRecorder recorder, ShutdownContextBuildItem shutdown,
+    ServiceStartBuildItem startService(ServiceRegistrar serviceRegistrar,
             DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig, EmbeddedPostgreSQLConfig postgreSQLConfig,
             BuildProducer<RunTimeConfigurationDefaultBuildItem> configProducer) {
         final int port = postgreSQLConfig.port().orElseGet(EmbeddedPostgreSQLConfigUtils::getDefaultPort);
 
         Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
-        recorder.startPostgres(shutdown, port, postgreSQLConfig.listenAddress(), dbNames, postgreSQLConfig.stringType(),
-                postgreSQLConfig.startupWait(),
-                postgreSQLConfig.dataDir());
+
+        // only plain values may be captured by the service lambda
+        final Map<String, String> capturedDbNames = Map.copyOf(dbNames);
+        final String listenAddress = postgreSQLConfig.listenAddress().orElse(null);
+        final String stringType = postgreSQLConfig.stringType();
+        final Long startupWait = postgreSQLConfig.startupWait().orElse(null);
+        final String dataDir = postgreSQLConfig.dataDir().orElse(null);
+        serviceRegistrar.forService(SERVICE_NAME)
+                .atPhase(Phase.INFRASTRUCTURE)
+                .onStart(ctx -> EmbeddedPostgreSQLService.start(ctx, port, listenAddress, capturedDbNames, stringType,
+                        startupWait, dataDir));
+
         getConfig(port, dbNames).forEach((k, v) -> configProducer.produce(new RunTimeConfigurationDefaultBuildItem(k, v)));
         return new ServiceStartBuildItem(FEATURE);
     }
@@ -133,7 +146,7 @@ class EmbeddedPostgreSQLProcessor {
                 cfg = null;
             };
             QuarkusClassLoader cl = (QuarkusClassLoader) Thread.currentThread().getContextClassLoader();
-            ((QuarkusClassLoader) cl.parent()).addCloseTask(closeTask);
+            ((QuarkusClassLoader) cl.getParent()).addCloseTask(closeTask);
         }
         cfg = pgConfig;
         return devService.toBuildItem();
@@ -166,7 +179,7 @@ class EmbeddedPostgreSQLProcessor {
     record RunningPostgres(EmbeddedPostgres pg, Map<String, String> config) {
         DevServicesResultBuildItem toBuildItem() {
             return DevServicesResultBuildItem.discovered()
-                    .name(FEATURE)
+                    .feature(FEATURE)
                     .config(config)
                     .build();
         }
@@ -195,7 +208,8 @@ class EmbeddedPostgreSQLProcessor {
                 "embedded-postgres"));
     }
 
-    @BuildStep(onlyIf = NativeOrNativeSourcesBuild.class)
+    // native-image build items are only consumed by native builds, so no launch condition is needed
+    @BuildStep
     public void nativeResources(BuildProducer<NativeImageResourcePatternsBuildItem> resource) {
         resource.produce(NativeImageResourcePatternsBuildItem.builder().includeGlob("postgres-*.txz").build());
     }
