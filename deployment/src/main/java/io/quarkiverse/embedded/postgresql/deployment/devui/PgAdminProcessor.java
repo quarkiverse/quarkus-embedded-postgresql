@@ -107,17 +107,13 @@ public class PgAdminProcessor {
         pgAdminConfigProducer.produce(new PgAdminConfigBuildItem(
                 container.getHost(), container.getMappedPort(80)));
 
-        return new DevServicesResultBuildItem.RunningDevService(CONTAINER_ID, container.getContainerId(),
-                () -> {
-                    log.info("Stopping PgAdmin container...");
-                    try {
-                        container.stop();
-                        log.info("PgAdmin container stopped successfully.");
-                    } catch (Exception e) {
-                        log.error("Failed to stop PgAdmin container: " + e.getMessage(), e);
-                    }
-                }, config)
-                .toBuildItem();
+        // Quarkus 3's RunningDevService.toBuildItem() produced exactly this and discarded the closeable,
+        // so the container lifecycle is unchanged (Testcontainers cleans it up when the JVM exits).
+        return DevServicesResultBuildItem.discovered()
+                .name(CONTAINER_ID)
+                .containerId(container.getContainerId())
+                .config(config)
+                .build();
     }
 
     public String generateServersJson(int port) {

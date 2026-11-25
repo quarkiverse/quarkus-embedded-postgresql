@@ -49,7 +49,7 @@ class EmbeddedPostgreSQLProcessor {
 
     private static final String FEATURE = "embedded-postgres";
 
-    static volatile DevServicesResultBuildItem.RunningDevService devService;
+    static volatile RunningPostgres devService;
     static volatile EmbeddedPostgreSQLConfig cfg;
     static volatile boolean first = true;
 
@@ -93,7 +93,7 @@ class EmbeddedPostgreSQLProcessor {
             if (!shouldShutdownTheBroker) {
                 return devService.toBuildItem();
             }
-            EmbeddedPostgreSQLDBUtils.close(devService.getCloseable());
+            EmbeddedPostgreSQLDBUtils.close(devService.pg());
             devService = null;
             cfg = null;
         }
@@ -117,17 +117,15 @@ class EmbeddedPostgreSQLProcessor {
             return null;
         }
 
-        if (devService.isOwner()) {
-            log.info("Embedded PostgreSQL started.");
-            pgBuildItemBuildProducer.produce(new EmbeddedPostgreSQLDevServicesConfigBuildItem(devService.getConfig()));
-        }
+        log.info("Embedded PostgreSQL started.");
+        pgBuildItemBuildProducer.produce(new EmbeddedPostgreSQLDevServicesConfigBuildItem(devService.config()));
 
         // Configure the watch dog
         if (first) {
             first = false;
             Runnable closeTask = () -> {
                 if (devService != null) {
-                    EmbeddedPostgreSQLDBUtils.close(devService.getCloseable());
+                    EmbeddedPostgreSQLDBUtils.close(devService.pg());
                     log.info("Embedded PostgreSQL shut down.");
                 }
                 first = true;
@@ -141,7 +139,7 @@ class EmbeddedPostgreSQLProcessor {
         return devService.toBuildItem();
     }
 
-    private DevServicesResultBuildItem.RunningDevService startPostgres(DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
+    private RunningPostgres startPostgres(DataSourcesBuildTimeConfig dataSourcesBuildTimeConfig,
             EmbeddedPostgreSQLConfig postgreSQLConfig) throws IOException {
 
         Map<String, String> dbNames = getDBNames(dataSourcesBuildTimeConfig);
@@ -157,10 +155,21 @@ class EmbeddedPostgreSQLProcessor {
             }
         }
         devServerConfigMap.put("quarkus.embedded.postgresql.port", String.valueOf(pg.getPort()));
-        return new DevServicesResultBuildItem.RunningDevService(FEATURE,
-                null,
-                pg,
-                devServerConfigMap);
+        return new RunningPostgres(pg, devServerConfigMap);
+    }
+
+    /**
+     * The embedded PostgreSQL instance started for dev/test mode, together with the configuration it exposes.
+     * The extension owns its lifecycle (see the close task registered in {@link #startPostgresDevService}),
+     * so it is reported to Quarkus as a discovered dev service.
+     */
+    record RunningPostgres(EmbeddedPostgres pg, Map<String, String> config) {
+        DevServicesResultBuildItem toBuildItem() {
+            return DevServicesResultBuildItem.discovered()
+                    .name(FEATURE)
+                    .config(config)
+                    .build();
+        }
     }
 
     @BuildStep
